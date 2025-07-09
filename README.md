@@ -22,26 +22,48 @@
 
 ```js
 const users = [
-  { id: 1, name: 'John', age: 30 },
-  { id: 2, name: 'Alice', age: 25 }
+  { id: 1, name: 'Alice', age: 25, score: 80 },
+  { id: 2, name: 'Bob', age: 30, score: 90 },
+  { id: 3, name: 'Carol', age: 35, score: 85 },
+  { id: 4, name: 'Dan', age: 40, score: 70 },
+  { id: 5, name: 'Eve', age: 30, score: 100 }
 ];
+ 
+// INSERT multiple users  
 
-// 🔸 INSERT multiple users
 query("INSERT INTO ?", [users, [
-  { id: 3, name: 'Bob', age: 35 },
-  { id: 4, name: 'Eve', age: 40 }
+  { id: 6, name: 'Grace', age: 28 },
+  { id: 7, name: 'Hank', age: 33 }
 ]]);
+console.log('SELECT All',users);
 
-// 🔹 SELECT adults
-const adults = query("SELECT id, name FROM ? WHERE age >= ?", [users, 30]);
 
-// 🔸 UPDATE a user's age
-query("UPDATE ? SET age = ? WHERE name = ?", [users, 45, 'Eve']);
+// SELECT WHERE
+const result1 = query("SELECT id, name FROM ? WHERE age >= ? AND score < ?", [users, 30, 90]);
+console.log('SELECT WHERE',result1);
 
-// 🔸 DELETE a user
-query("DELETE FROM ? WHERE name = ?", [users, 'Alice']);
+// ORDER BY
+const result2 = query("SELECT id, name, score FROM ? ORDER BY score DESC", [users]);
+console.log('ORDER BY',result2);
 
-// 🔹 GROUP BY + HAVING
-const grouped = query("SELECT name, COUNT(id) FROM ? GROUP BY name HAVING COUNT(id) > 0", [users]);
 
-console.log({ adults, grouped, users });
+// UPDATE
+query("UPDATE ? SET score = 95 WHERE name = ?", [users, 'Alice']);
+console.log('UPDATE',users.find(u => u.name === 'Alice'));
+
+// DELETE
+query("DELETE FROM ? WHERE age < ?", [users, 30]);
+console.log('DELETE', users);
+
+
+// COUNT + GROUP BY
+console.log('COUNT + GROUP BY',query("SELECT age, COUNT(*) FROM ? GROUP BY age", [users]));
+
+// SUM + HAVING
+console.log('SUM + HAVING',query("SELECT age, SUM(score) FROM ? GROUP BY age HAVING age >= 30", [users]));
+
+// AVG + LIMIT
+console.log('AVG + LIMIT',query("SELECT AVG(score) FROM ? WHERE age >= ?", [users, 30]));
+
+// LIMIT + OFFSET
+console.log('LIMIT + OFFSET',query("SELECT name FROM ? ORDER BY score DESC LIMIT 2 OFFSET 1", [users]));
