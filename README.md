@@ -354,11 +354,7 @@ MIT License - feel free to use in commercial and open-source projects.
 - Built for developers who need SQL-like functionality in JavaScript
 - Community feedback and contributions
 
-## 📞 Support
-
-- 📧 **Email**: your-email@domain.com
-- 💬 **Issues**: [GitHub Issues](https://github.com/yourusername/js-sql-query/issues)
-- 📖 **Docs**: [Full Documentation](https://github.com/yourusername/js-sql-query/wiki)
+ 
 
 ---
 
