@@ -1,33 +1,77 @@
 function query(sql, params = []) {
   let paramIndex = 0;
 
+  // Check if we're using named parameters (object) vs positional parameters (array)
+  const isNamedParams = params.length === 1 && typeof params[0] === 'object' && !Array.isArray(params[0]);
+  const namedParams = isNamedParams ? params[0] : {};
+
   const tokens = [];
   let i = 0;
   while (i < sql.length) {
-    if (sql[i] === '?') {
+    if (sql[i] === '?' && !isNamedParams) {
       tokens.push({ type: 'param', index: paramIndex, value: params[paramIndex++] });
       i++;
+    } else if (sql[i] === ':' && isNamedParams) {
+      // Handle named parameters like :id, :email, :tbl
+      i++; // skip the ':'
+      let paramName = '';
+      while (i < sql.length && /[a-zA-Z0-9_]/.test(sql[i])) {
+        paramName += sql[i++];
+      }
+      if (paramName) {
+        tokens.push({ type: 'namedParam', name: paramName, value: namedParams[paramName] });
+      }
     } else {
       let chunk = '';
-      while (i < sql.length && sql[i] !== '?') {
+      while (i < sql.length && sql[i] !== '?' && sql[i] !== ':') {
         chunk += sql[i++];
       }
-      tokens.push({ type: 'sql', value: chunk });
+      if (chunk) {
+        tokens.push({ type: 'sql', value: chunk });
+      }
     }
   }
 
-  const data = params.find(p => Array.isArray(p));
+  // Find the data array - for named params, look for 'tbl' parameter pointing to array
+  let data;
+  if (isNamedParams) {
+    const tblName = namedParams.tbl;
+    if (tblName && Array.isArray(namedParams[tblName])) {
+      data = namedParams[tblName];
+    } else {
+      // Look for any array in the named params
+      data = Object.values(namedParams).find(v => Array.isArray(v));
+    }
+  } else {
+    data = params.find(p => Array.isArray(p));
+  }
 
   const substitutedSql = tokens.map(t => {
     if (t.type === 'sql') return t.value;
-    if (typeof t.value === 'string') return `'${t.value}'`;
-    if (typeof t.value === 'object' && Array.isArray(t.value)) return '?';
-    return String(t.value);
+    if (t.type === 'namedParam') {
+      if (t.name === 'tbl' && Array.isArray(t.value)) return '?';
+      if (typeof t.value === 'string') return `'${t.value}'`;
+      return String(t.value);
+    }
+    if (t.type === 'param') {
+      if (typeof t.value === 'string') return `'${t.value}'`;
+      if (typeof t.value === 'object' && Array.isArray(t.value)) return '?';
+      return String(t.value);
+    }
+    return '';
   }).join('').replace(/\s+/g, ' ').trim();
 
   function parseValue(v) {
     const clean = v.trim().replace(/^['"]|['"]$/g, '');
     return /^\d+(\.\d+)?$/.test(clean) ? Number(clean) : clean;
+  }
+
+  function parseFieldWithAlias(field) {
+    const asMatch = field.match(/^(.+?)\s+as\s+(\w+)$/i);
+    if (asMatch) {
+      return { field: asMatch[1].trim(), alias: asMatch[2].trim() };
+    }
+    return { field: field.trim(), alias: null };
   }
 
   function evaluateCondition(item, key, op, value) {
@@ -39,12 +83,21 @@ function query(sql, params = []) {
       case '<': return v < value;
       case '>=': return v >= value;
       case '<=': return v <= value;
+      case 'LIKE': 
+        if (typeof v !== 'string') return false;
+        const pattern = value.replace(/%/g, '.*').replace(/_/g, '.');
+        return new RegExp(`^${pattern}$`, 'i').test(v);
+      case 'BETWEEN':
+        const [min, max] = value;
+        return v >= min && v <= max;
+      case 'IS NULL': return v == null;
+      case 'IS NOT NULL': return v != null;
       default: return false;
     }
   }
 
   function tokenizeWhereClause(clause) {
-    const regex = /([a-zA-Z_][\w]*)\s*(>=|<=|!=|=|>|<)\s*('[^']*'|"[^"]*"|\S+)/g;
+    const regex = /([a-zA-Z_][\w]*)\s*(>=|<=|!=|=|>|<|LIKE|BETWEEN|IS\s+NULL|IS\s+NOT\s+NULL)\s*('[^']*'|"[^"]*"|\S+(?:\s+AND\s+\S+)?)/gi;
     const logicRegex = /\b(and|or)\b/gi;
     const tokens = [];
 
@@ -59,7 +112,7 @@ function query(sql, params = []) {
           if (logicTokens) tokens.push(...logicTokens.map(t => t.toUpperCase()));
         }
       }
-      tokens.push(`${match[1]}${match[2]}${match[3]}`);
+      tokens.push(`${match[1]}${match[2]}${match[3] || ''}`);
       lastIndex = regex.lastIndex;
     }
 
@@ -104,9 +157,32 @@ function query(sql, params = []) {
         }
         ops.push(o1);
       } else {
-        const match = token.match(/(\w+)(>=|<=|!=|=|>|<)(.+)/);
-        if (match) {
-          const [, key, op, val] = match;
+        const betweenMatch = token.match(/(\w+)BETWEEN(.+)/i);
+        const likeMatch = token.match(/(\w+)LIKE(.+)/i);
+        const isNullMatch = token.match(/(\w+)IS\s+NULL/i);
+        const isNotNullMatch = token.match(/(\w+)IS\s+NOT\s+NULL/i);
+        const standardMatch = token.match(/(\w+)(>=|<=|!=|=|>|<)(.+)/);
+        
+        if (betweenMatch) {
+          const [, key, values] = betweenMatch;
+          const parts = values.trim().split(/\s+AND\s+/i);
+          if (parts.length === 2) {
+            const min = parseValue(parts[0]);
+            const max = parseValue(parts[1]);
+            output.push(item => evaluateCondition(item, key, 'BETWEEN', [min, max]));
+          }
+        } else if (likeMatch) {
+          const [, key, val] = likeMatch;
+          const parsed = parseValue(val);
+          output.push(item => evaluateCondition(item, key, 'LIKE', parsed));
+        } else if (isNullMatch) {
+          const [, key] = isNullMatch;
+          output.push(item => evaluateCondition(item, key, 'IS NULL', null));
+        } else if (isNotNullMatch) {
+          const [, key] = isNotNullMatch;
+          output.push(item => evaluateCondition(item, key, 'IS NOT NULL', null));
+        } else if (standardMatch) {
+          const [, key, op, val] = standardMatch;
           const parsed = parseValue(val);
           output.push(item => evaluateCondition(item, key, op, parsed));
         }
@@ -188,22 +264,38 @@ function query(sql, params = []) {
     const orderMatch = substitutedSql.match(/order by\s+(\w+)(\s+(asc|desc))?/i);
     const limitMatch = substitutedSql.match(/limit\s+(\d+)(\s+offset\s+(\d+))?/i);
     const selectMatch = substitutedSql.match(/select\s+(.+?)\s+from/i);
+    const distinctMatch = substitutedSql.match(/select\s+distinct\s+(.+?)\s+from/i);
 
     const fieldsRaw = selectMatch ? selectMatch[1] : '*';
-    const fields = fieldsRaw.split(',').map(f => f.trim());
+    const isDistinct = distinctMatch !== null;
+    const actualFields = isDistinct ? distinctMatch[1] : fieldsRaw;
+    const fieldsParsed = actualFields.split(',').map(f => parseFieldWithAlias(f));
+    const fields = fieldsParsed.map(fp => fp.field);
 
-    const paramQueue = [...params];
-    const dataArray = paramQueue.find(p => Array.isArray(p));
-    paramQueue.splice(paramQueue.indexOf(dataArray), 1);
+    const paramQueue = isNamedParams ? Object.entries(namedParams).filter(([key, val]) => !Array.isArray(val) && key !== 'tbl') : [...params];
+    const dataArray = data;
+    if (!isNamedParams) {
+      const dataIndex = paramQueue.findIndex(p => Array.isArray(p));
+      if (dataIndex >= 0) paramQueue.splice(dataIndex, 1);
+    }
 
     let rows = [...dataArray];
 
     if (whereMatch) {
       const raw = whereMatch[1];
-      const clause = raw.replace(/\?/g, () => {
-        const val = paramQueue.shift();
-        return typeof val === 'string' ? `'${val}'` : String(val);
-      });
+      let clause;
+      if (isNamedParams) {
+        // Replace named parameters in WHERE clause
+        clause = raw.replace(/:(\w+)/g, (match, paramName) => {
+          const val = namedParams[paramName];
+          return typeof val === 'string' ? `'${val}'` : String(val);
+        });
+      } else {
+        clause = raw.replace(/\?/g, () => {
+          const val = paramQueue.shift();
+          return typeof val === 'string' ? `'${val}'` : String(val);
+        });
+      }
       rows = rows.filter(item => matchConditions(item, clause));
     }
 
@@ -220,15 +312,39 @@ function query(sql, params = []) {
 
       rows = Object.entries(grouped).map(([key, group]) => {
         const result = { [groupKey]: parseValue(key) };
-        for (const field of fields) {
-          if (/count\(\*\)/i.test(field)) result['count'] = group.length;
+        for (let i = 0; i < fields.length; i++) {
+          const field = fields[i];
+          const fieldInfo = fieldsParsed[i];
+          const alias = fieldInfo.alias;
+          
+          if (/count\(\*\)/i.test(field)) {
+            result[alias || 'count'] = group.length;
+          }
+          else if (/count\((\w+)\)/i.test(field)) {
+            const col = field.match(/count\((\w+)\)/i)[1];
+            result[alias || `count_${col}`] = group.filter(row => row[col] != null).length;
+          }
           else if (/sum\((\w+)\)/i.test(field)) {
             const col = field.match(/sum\((\w+)\)/i)[1];
-            result[`sum_${col}`] = group.reduce((a, b) => a + Number(b[col] || 0), 0);
+            result[alias || `sum_${col}`] = group.reduce((a, b) => a + Number(b[col] || 0), 0);
           }
           else if (/avg\((\w+)\)/i.test(field)) {
             const col = field.match(/avg\((\w+)\)/i)[1];
-            result[`avg_${col}`] = group.reduce((a, b) => a + Number(b[col] || 0), 0) / group.length;
+            result[alias || `avg_${col}`] = group.reduce((a, b) => a + Number(b[col] || 0), 0) / group.length;
+          }
+          else if (/min\((\w+)\)/i.test(field)) {
+            const col = field.match(/min\((\w+)\)/i)[1];
+            const values = group.map(row => row[col]).filter(v => v != null);
+            result[alias || `min_${col}`] = values.length > 0 ? Math.min(...values) : null;
+          }
+          else if (/max\((\w+)\)/i.test(field)) {
+            const col = field.match(/max\((\w+)\)/i)[1];
+            const values = group.map(row => row[col]).filter(v => v != null);
+            result[alias || `max_${col}`] = values.length > 0 ? Math.max(...values) : null;
+          }
+          else if (field !== groupKey) {
+            // Handle regular columns (take first value from group)
+            result[alias || field] = group[0][field];
           }
         }
         return result;
@@ -255,11 +371,43 @@ function query(sql, params = []) {
       rows = rows.slice(offset, offset + limit);
     }
 
-    if (fields.includes('*')) return rows;
+    if (fields.includes('*')) {
+      if (isDistinct) {
+        // Remove duplicates for * queries
+        const seen = new Set();
+        rows = rows.filter(row => {
+          const key = JSON.stringify(row);
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      }
+      return rows;
+    }
 
-    return rows.map(row => Object.fromEntries(
-      fields.map(f => [f, row[f]])
-    ));
+    let result = rows.map(row => {
+      const resultRow = {};
+      for (let i = 0; i < fields.length; i++) {
+        const field = fields[i];
+        const fieldInfo = fieldsParsed[i];
+        const alias = fieldInfo.alias || field;
+        resultRow[alias] = row[field];
+      }
+      return resultRow;
+    });
+
+    if (isDistinct) {
+      // Remove duplicates based on selected fields
+      const seen = new Set();
+      result = result.filter(row => {
+        const key = JSON.stringify(row);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+
+    return result;
   }
 
   throw new Error('Unsupported SQL operation.');
