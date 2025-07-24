@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Query Function Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+        h3 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+        .example {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .result {
+            background: #e8f5e8;
+            border: 1px solid #c3e6c3;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .run-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .run-btn:hover {
+            background: #2980b9;
+        }
+        .data-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .feature-tag {
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        .nav {
+            background: #34495e;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+            padding: 5px 10px;
+            border-radius: 3px;
+            transition: background 0.3s;
+        }
+        .nav a:hover {
+            background: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 SQL Query Function Demo</h1>
+        
+        <div class="nav">
+            <a href="#basic">Basic Queries</a>
+            <a href="#intermediate">Intermediate</a>
+            <a href="#advanced">Advanced</a>
+            <a href="#named-params">Named Parameters</a>
+            <a href="#aggregates">Aggregates</a>
+            <a href="#operators">Operators</a>
+        </div>
+
+        <!-- Sample Data Section -->
+        <div class="data-section">
+            <h3>📊 Sample Data</h3>
+            <p>All examples use these sample datasets:</p>
+            <div class="code">
+                <pre>
+// Users Dataset
+const users = [
+    { id: 1, name: "John Doe", email: "john@gmail.com", age: 25, city: "New York", salary: 50000 },
+    { id: 2, name: "Jane Smith", email: "jane@yahoo.com", age: 30, city: "Los Angeles", salary: 60000 },
+    { id: 3, name: "Bob Johnson", email: "bob@gmail.com", age: 35, city: "Chicago", salary: 55000 },
+    { id: 4, name: "Alice Brown", email: "alice@hotmail.com", age: 28, city: "New York", salary: null },
+    { id: 5, name: "Charlie Wilson", email: null, age: 32, city: "Los Angeles", salary: 70000 }
+];
+
+// Products Dataset
+const products = [
+    { id: 1, name: "Laptop", category: "Electronics", price: 999, stock: 50 },
+    { id: 2, name: "Mouse", category: "Electronics", price: 25, stock: 100 },
+    { id: 3, name: "Desk", category: "Furniture", price: 299, stock: 20 },
+    { id: 4, name: "Chair", category: "Furniture", price: 199, stock: 30 }
+];
+</pre>
+    </div>
+        </div>
+
+        <!-- Basic Queries -->
+        <section id="basic">
+            <h2>🔰 Basic Queries</h2>
+
+            <div class="example">
+                <h3>Simple SELECT *</h3>
+                <div class="code">query("SELECT * FROM ?", [users]);</div>
+                <button class="run-btn" onclick="runExample('basic1')">Run Example</button>
+                <div id="basic1" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>SELECT Specific Columns</h3>
+                <div class="code">query("SELECT name, email FROM ?", [users]);</div>
+                <button class="run-btn" onclick="runExample('basic2')">Run Example</button>
+                <div id="basic2" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>Simple WHERE Clause</h3>
+                <div class="code">query("SELECT * FROM ? WHERE age > ?", [users, 30]);</div>
+                <button class="run-btn" onclick="runExample('basic3')">Run Example</button>
+                <div id="basic3" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>INSERT New Record</h3>
+                <div class="code">
+const newUser = { id: 6, name: "David Lee", email: "david@gmail.com", age: 27, city: "Miami", salary: 52000 };
+query("INSERT INTO ?", [users, newUser]);
+console.log("Inserted:", newUser);</div>
+                <button class="run-btn" onclick="runExample('basic4')">Run Example</button>
+                <div id="basic4" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>UPDATE Records</h3>
+                <div class="code">query("UPDATE ? SET salary = 65000 WHERE name = 'Jane Smith'", [users]);</div>
+                <button class="run-btn" onclick="runExample('basic5')">Run Example</button>
+                <div id="basic5" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>DELETE Records</h3>
+                <div class="code">query("DELETE FROM ? WHERE age < 26", [users]);</div>
+                <button class="run-btn" onclick="runExample('basic6')">Run Example</button>
+                <div id="basic6" class="result"></div>
+            </div>
+        </section>
+
+        <!-- Intermediate Queries -->
+        <section id="intermediate">
+            <h2>⚡ Intermediate Queries</h2>
+
+            <div class="example">
+                <h3>Column Aliases <span class="feature-tag">AS</span></h3>
+                <div class="code">query("SELECT name AS fullName, email AS emailAddress, age AS yearsOld FROM ?", [users]);</div>
+                <button class="run-btn" onclick="runExample('inter1')">Run Example</button>
+                <div id="inter1" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>ORDER BY</h3>
+                <div class="code">query("SELECT name, age FROM ? ORDER BY age DESC", [users]);</div>
+                <button class="run-btn" onclick="runExample('inter2')">Run Example</button>
+                <div id="inter2" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>LIMIT and OFFSET</h3>
+                <div class="code">query("SELECT * FROM ? LIMIT 3 OFFSET 1", [users]);</div>
+                <button class="run-btn" onclick="runExample('inter3')">Run Example</button>
+                <div id="inter3" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>DISTINCT <span class="feature-tag">NEW</span></h3>
+                <div class="code">query("SELECT DISTINCT city FROM ?", [users]);</div>
+                <button class="run-btn" onclick="runExample('inter4')">Run Example</button>
+                <div id="inter4" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>Complex WHERE with AND/OR</h3>
+                <div class="code">query("SELECT * FROM ? WHERE (age > 25 AND city = 'New York') OR salary > 60000", [users]);</div>
+                <button class="run-btn" onclick="runExample('inter5')">Run Example</button>
+                <div id="inter5" class="result"></div>
+            </div>
+        </section>
+
+        <!-- Advanced Queries -->
+        <section id="advanced">
+            <h2>🎯 Advanced Queries</h2>
+
+            <div class="example">
+                <h3>GROUP BY with Aggregates</h3>
+                <div class="code">query("SELECT city, COUNT(*) AS userCount, AVG(salary) AS avgSalary FROM ? GROUP BY city", [users]);</div>
+                <button class="run-btn" onclick="runExample('adv1')">Run Example</button>
+                <div id="adv1" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>All Aggregate Functions <span class="feature-tag">NEW</span></h3>
+                <div class="code">query(`
+SELECT 
+    city,
+    COUNT(*) AS total,
+    COUNT(salary) AS withSalary,
+    SUM(salary) AS totalSalary,
+    AVG(salary) AS avgSalary,
+    MIN(salary) AS minSalary,
+    MAX(salary) AS maxSalary
+FROM ? 
+GROUP BY city`, [users]);</div>
+                <button class="run-btn" onclick="runExample('adv2')">Run Example</button>
+                <div id="adv2" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>HAVING Clause</h3>
+                <div class="code">query("SELECT city, COUNT(*) AS userCount FROM ? GROUP BY city HAVING COUNT(*) > 1", [users]);</div>
+                <button class="run-btn" onclick="runExample('adv3')">Run Example</button>
+                <div id="adv3" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>Complex Query with All Clauses</h3>
+                <div class="code">query(`
+SELECT 
+    city AS location, 
+    COUNT(*) AS users, 
+    AVG(age) AS avgAge
+FROM ? 
+WHERE salary IS NOT NULL 
+GROUP BY city 
+HAVING COUNT(*) >= 1
+ORDER BY avgAge DESC 
+LIMIT 5`, [users]);</div>
+                <button class="run-btn" onclick="runExample('adv4')">Run Example</button>
+                <div id="adv4" class="result"></div>
+            </div>
+        </section>
+
+        <!-- Named Parameters -->
+        <section id="named-params">
+            <h2>🏷️ Named Parameters</h2>
+
+            <div class="example">
+                <h3>Basic Named Parameters <span class="feature-tag">NEW</span></h3>
+                <div class="code">query("SELECT * FROM :tbl WHERE id = :userId", [{ tbl: users, userId: 2 }]);</div>
+                <button class="run-btn" onclick="runExample('named1')">Run Example</button>
+                <div id="named1" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>Multiple Named Parameters</h3>
+                <div class="code">query("SELECT name, age FROM :tbl WHERE age > :minAge AND city = :targetCity", [
+    { tbl: users, minAge: 25, targetCity: "New York" }
+]);</div>
+                <button class="run-btn" onclick="runExample('named2')">Run Example</button>
+                <div id="named2" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>Named Parameters with LIKE</h3>
+                <div class="code">query("SELECT * FROM :tbl WHERE email LIKE :domain", [
+    { tbl: users, domain: "%@gmail.com" }
+]);</div>
+                <button class="run-btn" onclick="runExample('named3')">Run Example</button>
+                <div id="named3" class="result"></div>
+            </div>
+        </section>
+
+        <!-- Operators -->
+        <section id="operators">
+            <h2>🔧 Advanced Operators</h2>
+
+            <div class="example">
+                <h3>BETWEEN Operator <span class="feature-tag">NEW</span></h3>
+                <div class="code">query("SELECT name, age FROM ? WHERE age BETWEEN 25 AND 32", [users]);</div>
+                <button class="run-btn" onclick="runExample('op1')">Run Example</button>
+                <div id="op1" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>LIKE Operator with Wildcards <span class="feature-tag">NEW</span></h3>
+                <div class="code">query("SELECT name, email FROM ? WHERE name LIKE 'J%'", [users]);</div>
+                <button class="run-btn" onclick="runExample('op2')">Run Example</button>
+                <div id="op2" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>IS NULL / IS NOT NULL <span class="feature-tag">NEW</span></h3>
+                <div class="code">query("SELECT name, email, salary FROM ? WHERE email IS NULL OR salary IS NULL", [users]);</div>
+                <button class="run-btn" onclick="runExample('op3')">Run Example</button>
+                <div id="op3" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>Complex Operator Combinations</h3>
+                <div class="code">query(`SELECT name, age, salary 
+FROM ? 
+WHERE age BETWEEN 25 AND 35 
+  AND name LIKE '%o%'
+  AND salary IS NOT NULL`, [users]);</div>
+                <button class="run-btn" onclick="runExample('op4')">Run Example</button>
+                <div id="op4" class="result"></div>
+            </div>
+        </section>
+
+        <!-- Real-world Examples -->
+        <section id="real-world">
+            <h2>🌎 Real-world Examples</h2>
+
+            <div class="example">
+                <h3>User Analytics Dashboard</h3>
+                <div class="code">query(`
+SELECT 
+    city AS location,
+    COUNT(*) AS totalUsers,
+    COUNT(salary) AS usersWithSalary,
+    ROUND(AVG(salary)) AS avgSalary,
+    MIN(age) AS youngestUser,
+    MAX(age) AS oldestUser
+FROM ? 
+WHERE email IS NOT NULL
+GROUP BY city
+ORDER BY totalUsers DESC`, [users]);</div>
+                <button class="run-btn" onclick="runExample('real1')">Run Example</button>
+                <div id="real1" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>Product Inventory Report</h3>
+                <div class="code">query(`
+SELECT 
+    category,
+    COUNT(*) AS productCount,
+    SUM(stock) AS totalStock,
+    AVG(price) AS avgPrice,
+    MIN(price) AS cheapest,
+    MAX(price) AS mostExpensive
+FROM ?
+GROUP BY category
+ORDER BY totalStock DESC`, [products]);</div>
+                <button class="run-btn" onclick="runExample('real2')">Run Example</button>
+                <div id="real2" class="result"></div>
+            </div>
+
+            <div class="example">
+                <h3>Search with Multiple Filters</h3>
+                <div class="code">query(`
+SELECT DISTINCT name AS productName, price, stock
+FROM :products
+WHERE category = :cat 
+  AND price BETWEEN :minPrice AND :maxPrice
+  AND stock > :minStock
+ORDER BY price ASC`, [
+    { 
+        products: products, 
+        cat: "Electronics", 
+        minPrice: 20, 
+        maxPrice: 1000, 
+        minStock: 40 
+    }
+]);</div>
+                <button class="run-btn" onclick="runExample('real3')">Run Example</button>
+                <div id="real3" class="result"></div>
+            </div>
+        </section>
+
+        <div style="margin-top: 50px; text-align: center; color: #7f8c8d;">
+            <p>🎉 <strong>Your SQL Query Function supports all major SQL operations!</strong></p>
+            <p>Features: SELECT, INSERT, UPDATE, DELETE, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT, DISTINCT, Aggregates, Named Parameters, and Advanced Operators</p>
+        </div>
+    </div>
+
+    <script src="query.js"></script>
+    <script>
+        // Sample data
+        let users = [
+            { id: 1, name: "John Doe", email: "john@gmail.com", age: 25, city: "New York", salary: 50000 },
+            { id: 2, name: "Jane Smith", email: "jane@yahoo.com", age: 30, city: "Los Angeles", salary: 60000 },
+            { id: 3, name: "Bob Johnson", email: "bob@gmail.com", age: 35, city: "Chicago", salary: 55000 },
+            { id: 4, name: "Alice Brown", email: "alice@hotmail.com", age: 28, city: "New York", salary: null },
+            { id: 5, name: "Charlie Wilson", email: null, age: 32, city: "Los Angeles", salary: 70000 }
+        ];
+
+        const products = [
+            { id: 1, name: "Laptop", category: "Electronics", price: 999, stock: 50 },
+            { id: 2, name: "Mouse", category: "Electronics", price: 25, stock: 100 },
+            { id: 3, name: "Desk", category: "Furniture", price: 299, stock: 20 },
+            { id: 4, name: "Chair", category: "Furniture", price: 199, stock: 30 }
+        ];
+
+        function runExample(elementId) {
+            const resultDiv = document.getElementById(elementId);
+            let result;
+            
+            try {
+                switch(elementId) {
+                    case 'basic1':
+                        result = query("SELECT * FROM ?", [users]);
+                        break;
+                    case 'basic2':
+                        result = query("SELECT name, email FROM ?", [users]);
+                        break;
+                    case 'basic3':
+                        result = query("SELECT * FROM ? WHERE age > ?", [users, 30]);
+                        break;
+                    case 'basic4':
+                        const newUser = { id: 6, name: "David Lee", email: "david@gmail.com", age: 27, city: "Miami", salary: 52000 };
+                        result = query("INSERT INTO ?", [users, newUser]);
+                        result = "✅ Inserted: " + JSON.stringify(newUser, null, 2);
+                        break;
+                    case 'basic5':
+                        result = query("UPDATE ? SET salary = 65000 WHERE name = 'Jane Smith'", [users]);
+                        result = "✅ Updated Jane Smith's salary. Current users: " + JSON.stringify(users.filter(u => u.name === 'Jane Smith'), null, 2);
+                        break;
+                    case 'basic6':
+                        const originalLength = users.length;
+                        result = query("DELETE FROM ? WHERE age < 26", [users]);
+                        result = `✅ Deleted ${originalLength - users.length} users with age < 26. Remaining users: ${users.length}`;
+                        break;
+                    case 'inter1':
+                        result = query("SELECT name AS fullName, email AS emailAddress, age AS yearsOld FROM ?", [users]);
+                        break;
+                    case 'inter2':
+                        result = query("SELECT name, age FROM ? ORDER BY age DESC", [users]);
+                        break;
+                    case 'inter3':
+                        result = query("SELECT * FROM ? LIMIT 3 OFFSET 1", [users]);
+                        break;
+                    case 'inter4':
+                        result = query("SELECT DISTINCT city FROM ?", [users]);
+                        break;
+                    case 'inter5':
+                        result = query("SELECT * FROM ? WHERE (age > 25 AND city = 'New York') OR salary > 60000", [users]);
+                        break;
+                    case 'adv1':
+                        result = query("SELECT city, COUNT(*) AS userCount, AVG(salary) AS avgSalary FROM ? GROUP BY city", [users]);
+                        break;
+                    case 'adv2':
+                        result = query(`SELECT city, COUNT(*) AS total, COUNT(salary) AS withSalary, SUM(salary) AS totalSalary, AVG(salary) AS avgSalary, MIN(salary) AS minSalary, MAX(salary) AS maxSalary FROM ? GROUP BY city`, [users]);
+                        break;
+                    case 'adv3':
+                        result = query("SELECT city, COUNT(*) AS userCount FROM ? GROUP BY city HAVING COUNT(*) > 1", [users]);
+                        break;
+                    case 'adv4':
+                        result = query(`SELECT city AS location, COUNT(*) AS users, AVG(age) AS avgAge FROM ? WHERE salary IS NOT NULL GROUP BY city HAVING COUNT(*) >= 1 ORDER BY avgAge DESC LIMIT 5`, [users]);
+                        break;
+                    case 'named1':
+                        result = query("SELECT * FROM :tbl WHERE id = :userId", [{ tbl: users, userId: 2 }]);
+                        break;
+                    case 'named2':
+                        result = query("SELECT name, age FROM :tbl WHERE age > :minAge AND city = :targetCity", [{ tbl: users, minAge: 25, targetCity: "New York" }]);
+                        break;
+                    case 'named3':
+                        result = query("SELECT * FROM :tbl WHERE email LIKE :domain", [{ tbl: users, domain: "%@gmail.com" }]);
+                        break;
+                    case 'op1':
+                        result = query("SELECT name, age FROM ? WHERE age BETWEEN 25 AND 32", [users]);
+                        break;
+                    case 'op2':
+                        result = query("SELECT name, email FROM ? WHERE name LIKE 'J%'", [users]);
+                        break;
+                    case 'op3':
+                        result = query("SELECT name, email, salary FROM ? WHERE email IS NULL OR salary IS NULL", [users]);
+                        break;
+                    case 'op4':
+                        result = query(`SELECT name, age, salary FROM ? WHERE age BETWEEN 25 AND 35 AND name LIKE '%o%' AND salary IS NOT NULL`, [users]);
+                        break;
+                    case 'real1':
+                        result = query(`SELECT city AS location, COUNT(*) AS totalUsers, COUNT(salary) AS usersWithSalary, AVG(salary) AS avgSalary, MIN(age) AS youngestUser, MAX(age) AS oldestUser FROM ? WHERE email IS NOT NULL GROUP BY city ORDER BY totalUsers DESC`, [users]);
+                        break;
+                    case 'real2':
+                        result = query(`SELECT category, COUNT(*) AS productCount, SUM(stock) AS totalStock, AVG(price) AS avgPrice, MIN(price) AS cheapest, MAX(price) AS mostExpensive FROM ? GROUP BY category ORDER BY totalStock DESC`, [products]);
+                        break;
+                    case 'real3':
+                        result = query(`SELECT DISTINCT name AS productName, price, stock FROM :products WHERE category = :cat AND price BETWEEN :minPrice AND :maxPrice AND stock > :minStock ORDER BY price ASC`, [{ products: products, cat: "Electronics", minPrice: 20, maxPrice: 1000, minStock: 40 }]);
+                        break;
+                    default:
+                        result = "Example not found";
+                }
+                
+                resultDiv.textContent = JSON.stringify(result, null, 2);
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                resultDiv.textContent = `❌ Error: ${error.message}`;
+                resultDiv.style.background = '#ffe6e6';
+                resultDiv.style.borderColor = '#ff9999';
+            }
+        }
+
+        // Reset data function for demos
+        function resetData() {
+            users = [
+                { id: 1, name: "John Doe", email: "john@gmail.com", age: 25, city: "New York", salary: 50000 },
+                { id: 2, name: "Jane Smith", email: "jane@yahoo.com", age: 30, city: "Los Angeles", salary: 60000 },
+                { id: 3, name: "Bob Johnson", email: "bob@gmail.com", age: 35, city: "Chicago", salary: 55000 },
+                { id: 4, name: "Alice Brown", email: "alice@hotmail.com", age: 28, city: "New York", salary: null },
+                { id: 5, name: "Charlie Wilson", email: null, age: 32, city: "Los Angeles", salary: 70000 }
+            ];
+        }
+
+        // Add a reset button
+        document.addEventListener('DOMContentLoaded', function() {
+            const resetBtn = document.createElement('button');
+            resetBtn.textContent = '🔄 Reset Sample Data';
+            resetBtn.className = 'run-btn';
+            resetBtn.style.position = 'fixed';
+            resetBtn.style.top = '20px';
+            resetBtn.style.right = '20px';
+            resetBtn.style.zIndex = '1000';
+            resetBtn.onclick = function() {
+                resetData();
+                alert('Sample data has been reset!');
+            };
+            document.body.appendChild(resetBtn);
+        });
+    </script>
+</body>
+</html>
