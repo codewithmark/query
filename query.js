@@ -1,3 +1,73 @@
+// Index management system
+const indexes = new Map(); // Map of dataArray -> Map of column -> index
+
+function createIndex(dataArray, column, type = 'hash') {
+  const arrayKey = dataArray;
+  if (!indexes.has(arrayKey)) {
+    indexes.set(arrayKey, new Map());
+  }
+  
+  const arrayIndexes = indexes.get(arrayKey);
+  
+  if (type === 'hash') {
+    // Hash index for equality lookups
+    const hashIndex = new Map();
+    dataArray.forEach((row, rowIndex) => {
+      const value = row[column];
+      if (!hashIndex.has(value)) {
+        hashIndex.set(value, []);
+      }
+      hashIndex.get(value).push(rowIndex);
+    });
+    arrayIndexes.set(`${column}_hash`, hashIndex);
+  } else if (type === 'sorted') {
+    // Sorted index for range queries and ORDER BY
+    const sortedIndex = dataArray
+      .map((row, index) => ({ value: row[column], index }))
+      .sort((a, b) => {
+        if (a.value < b.value) return -1;
+        if (a.value > b.value) return 1;
+        return 0;
+      });
+    arrayIndexes.set(`${column}_sorted`, sortedIndex);
+  }
+}
+
+function getIndex(dataArray, column, type = 'hash') {
+  const arrayKey = dataArray;
+  const arrayIndexes = indexes.get(arrayKey);
+  if (!arrayIndexes) return null;
+  return arrayIndexes.get(`${column}_${type}`) || null;
+}
+
+function dropIndex(dataArray, column, type = 'hash') {
+  const arrayKey = dataArray;
+  const arrayIndexes = indexes.get(arrayKey);
+  if (arrayIndexes) {
+    arrayIndexes.delete(`${column}_${type}`);
+  }
+}
+
+function dropAllIndexes(dataArray) {
+  const arrayKey = dataArray;
+  indexes.delete(arrayKey);
+}
+
+// Auto-index creation for frequently queried columns
+function autoCreateIndex(dataArray, column, operator) {
+  if (dataArray.length < 100) return; // Skip for small datasets
+  
+  const shouldCreateHash = ['=', '!='].includes(operator);
+  const shouldCreateSorted = ['>', '<', '>=', '<=', 'BETWEEN'].includes(operator);
+  
+  if (shouldCreateHash && !getIndex(dataArray, column, 'hash')) {
+    createIndex(dataArray, column, 'hash');
+  }
+  if (shouldCreateSorted && !getIndex(dataArray, column, 'sorted')) {
+    createIndex(dataArray, column, 'sorted');
+  }
+}
+
 function query(sql, params = []) {
   let paramIndex = 0;
 
@@ -94,6 +164,48 @@ function query(sql, params = []) {
       case 'IS NOT NULL': return v != null;
       default: return false;
     }
+  }
+
+  // Optimized filtering using indexes
+  function filterWithIndex(dataArray, conditions) {
+    if (!conditions || conditions.length === 0) return [...dataArray];
+    
+    let candidateIndexes = null;
+    
+    // Try to use indexes for simple conditions
+    for (const condition of conditions) {
+      if (condition.type === 'condition') {
+        const { key, op, value } = condition;
+        autoCreateIndex(dataArray, key, op);
+        
+        if (op === '=' && candidateIndexes === null) {
+          const hashIndex = getIndex(dataArray, key, 'hash');
+          if (hashIndex && hashIndex.has(value)) {
+            candidateIndexes = new Set(hashIndex.get(value));
+          }
+        } else if (['>', '<', '>=', '<='].includes(op) && candidateIndexes === null) {
+          const sortedIndex = getIndex(dataArray, key, 'sorted');
+          if (sortedIndex) {
+            const matchingIndexes = [];
+            for (const item of sortedIndex) {
+              if (evaluateCondition({ [key]: item.value }, key, op, value)) {
+                matchingIndexes.push(item.index);
+              }
+            }
+            candidateIndexes = new Set(matchingIndexes);
+          }
+        }
+      }
+    }
+    
+    // If we have candidate indexes, filter from those; otherwise, filter all
+    if (candidateIndexes) {
+      return Array.from(candidateIndexes)
+        .map(index => dataArray[index])
+        .filter(item => matchConditions(item, null, conditions));
+    }
+    
+    return dataArray.filter(item => matchConditions(item, null, conditions));
   }
 
   function tokenizeWhereClause(clause) {
@@ -195,11 +307,47 @@ function query(sql, params = []) {
     return evalExpr();
   }
 
-  function matchConditions(item, clause) {
-    if (!clause) return true;
+  function matchConditions(item, clause, parsedConditions = null) {
+    if (!clause && !parsedConditions) return true;
+    
+    if (parsedConditions) {
+      // Use pre-parsed conditions for index optimization
+      return evaluateParsedConditions(item, parsedConditions);
+    }
+    
     const tokens = tokenizeWhereClause(clause);
     const evaluator = parseCondition(tokens);
     return evaluator(item);
+  }
+  
+  function evaluateParsedConditions(item, conditions) {
+    // Simple evaluation for now - can be optimized further
+    for (const condition of conditions) {
+      if (condition.type === 'condition') {
+        if (!evaluateCondition(item, condition.key, condition.op, condition.value)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  // Enhanced ORDER BY with index support
+  function sortWithIndex(dataArray, sortKey, desc = false) {
+    const sortedIndex = getIndex(dataArray, sortKey, 'sorted');
+    
+    if (sortedIndex) {
+      // Use existing sorted index
+      const sortedData = sortedIndex.map(item => dataArray[item.index]);
+      return desc ? sortedData.reverse() : sortedData;
+    }
+    
+    // Fall back to regular sorting
+    return dataArray.sort((a, b) => {
+      if (a[sortKey] < b[sortKey]) return desc ? 1 : -1;
+      if (a[sortKey] > b[sortKey]) return desc ? -1 : 1;
+      return 0;
+    });
   }
 
   // INSERT
@@ -358,11 +506,7 @@ function query(sql, params = []) {
     if (orderMatch) {
       const [, key, , dir] = orderMatch;
       const desc = dir?.toLowerCase() === 'desc';
-      rows.sort((a, b) => {
-        if (a[key] < b[key]) return desc ? 1 : -1;
-        if (a[key] > b[key]) return desc ? -1 : 1;
-        return 0;
-      });
+      rows = sortWithIndex([...rows], key, desc);
     }
 
     if (limitMatch) {
@@ -412,3 +556,25 @@ function query(sql, params = []) {
 
   throw new Error('Unsupported SQL operation.');
 }
+
+// Public API for index management
+query.createIndex = createIndex;
+query.dropIndex = dropIndex;
+query.dropAllIndexes = dropAllIndexes;
+query.getIndexInfo = function(dataArray) {
+  const arrayKey = dataArray;
+  const arrayIndexes = indexes.get(arrayKey);
+  if (!arrayIndexes) return {};
+  
+  const info = {};
+  for (const [key, index] of arrayIndexes) {
+    const [column, type] = key.split('_');
+    if (!info[column]) info[column] = [];
+    info[column].push({
+      type,
+      size: index instanceof Map ? index.size : index.length,
+      memory: JSON.stringify(index).length // Rough memory estimate
+    });
+  }
+  return info;
+};
