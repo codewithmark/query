@@ -3,565 +3,1412 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQL Query Function Demo</title>
+    <title>Query.js - Interactive Demo</title>
+
+    <script src="query.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
+
         .container {
             background: white;
+            border-radius: 15px;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
+
         h1 {
-            color: #2c3e50;
+            color: #4f46e5;
             text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
             margin-bottom: 30px;
+            font-size: 1.2em;
         }
-        h2 {
-            color: #34495e;
-            border-bottom: 2px solid #3498db;
+
+        .demo-section {
+            margin: 40px 0;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            background: #f9fafb;
+        }
+
+        .demo-section h2 {
+            color: #1f2937;
+            border-bottom: 3px solid #4f46e5;
             padding-bottom: 10px;
-            margin-top: 40px;
-        }
-        h3 {
-            color: #2980b9;
-            margin-top: 30px;
-        }
-        .example {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        .code {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            overflow-x: auto;
-            margin: 10px 0;
-        }
-        .result {
-            background: #e8f5e8;
-            border: 1px solid #c3e6c3;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            font-family: monospace;
-            white-space: pre-wrap;
-        }
-        .run-btn {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 5px;
-        }
-        .run-btn:hover {
-            background: #2980b9;
-        }
-        .data-section {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        .feature-tag {
-            background: #3498db;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-size: 0.8em;
-            margin-left: 10px;
-        }
-        .nav {
-            background: #34495e;
-            padding: 15px;
-            border-radius: 5px;
             margin-bottom: 20px;
         }
-        .nav a {
+
+        .demo-item {
+            margin: 25px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border-left: 5px solid #10b981;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .demo-item h3 {
+            color: #065f46;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .code-block,
+        .code-block pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            margin: 10px 0;
+            overflow-x: auto;
+            border-left: 4px solid #10b981;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .result-block,
+        .result-block pre {
+            background: #1f2937;
+            color: #f9fafb;
+            border: 1px solid #10b981;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .error-block {
+            background: #fef2f2;
+            border: 1px solid #ef4444;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        button {
+            background: #4f46e5;
             color: white;
-            text-decoration: none;
-            margin-right: 20px;
-            padding: 5px 10px;
-            border-radius: 3px;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
             transition: background 0.3s;
         }
-        .nav a:hover {
-            background: #2c3e50;
+
+        button:hover {
+            background: #3730a3;
+        }
+
+        .run-all-btn {
+            background: #059669;
+            font-size: 18px;
+            padding: 15px 30px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .run-all-btn:hover {
+            background: #047857;
+        }
+
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+
+        .beginner { border-left-color: #10b981; }
+        .intermediate { border-left-color: #f59e0b; }
+        .advanced { border-left-color: #ef4444; }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .beginner-badge {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .intermediate-badge {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .advanced-badge {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .clear-storage {
+            background: #dc2626;
+            margin-bottom: 20px;
+        }
+
+        .clear-storage:hover {
+            background: #b91c1c;
+        }
+
+        .toc {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #1f2937;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            margin: 8px 0;
+        }
+
+        .toc a {
+            color: #4f46e5;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .toc a:hover {
+            background: #e5e7eb;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🚀 SQL Query Function Demo</h1>
-        
-        <div class="nav">
-            <a href="#basic">Basic Queries</a>
-            <a href="#intermediate">Intermediate</a>
-            <a href="#advanced">Advanced</a>
-            <a href="#named-params">Named Parameters</a>
-            <a href="#aggregates">Aggregates</a>
-            <a href="#operators">Operators</a>
+        <h1>🚀 Query.js Interactive Demo</h1>
+        <p class="subtitle">Advanced SQL-like JavaScript Library with Secure localStorage</p>
+
+        <div class="toc">
+            <h3>📋 Table of Contents</h3>
+            <ul>
+                <li><a href="#beginner">🟢 Beginner Examples</a></li>
+                <li><a href="#intermediate">🟡 Intermediate Examples</a></li>
+                <li><a href="#advanced">🔴 Advanced Examples</a></li>
+                <li><a href="#performance">⚡ Performance Features</a></li>
+                <li><a href="#realworld">🌍 Real-World Examples</a></li>
+            </ul>
         </div>
 
-        <!-- Sample Data Section -->
-        <div class="data-section">
-            <h3>📊 Sample Data</h3>
-            <p>All examples use these sample datasets:</p>
-            <div class="code">
-                <pre>
-// Users Dataset
-const users = [
-    { id: 1, name: "John Doe", email: "john@gmail.com", age: 25, city: "New York", salary: 50000 },
-    { id: 2, name: "Jane Smith", email: "jane@yahoo.com", age: 30, city: "Los Angeles", salary: 60000 },
-    { id: 3, name: "Bob Johnson", email: "bob@gmail.com", age: 35, city: "Chicago", salary: 55000 },
-    { id: 4, name: "Alice Brown", email: "alice@hotmail.com", age: 28, city: "New York", salary: null },
-    { id: 5, name: "Charlie Wilson", email: null, age: 32, city: "Los Angeles", salary: 70000 }
-];
+        <button class="clear-storage" onclick="clearAllData()">🗑️ Clear All Storage</button>
+        <button class="run-all-btn" onclick="runAllExamples()">▶️ Run All Examples</button>
 
-// Products Dataset
-const products = [
-    { id: 1, name: "Laptop", category: "Electronics", price: 999, stock: 50 },
-    { id: 2, name: "Mouse", category: "Electronics", price: 25, stock: 100 },
-    { id: 3, name: "Desk", category: "Furniture", price: 299, stock: 20 },
-    { id: 4, name: "Chair", category: "Furniture", price: 199, stock: 30 }
-];
+        <div id="beginner" class="demo-section">
+            <h2>🟢 Beginner Examples</h2>
+
+            <div class="demo-item beginner">
+                <span class="difficulty-badge beginner-badge">Beginner</span>
+                <h3>1. Basic Data Storage (query.add & query.get)</h3>
+                <div class="code-block">
+<pre>
+    // Store simple data
+    query.add("user_token", "abc123xyz");
+    query.add("user_name", "John Doe");
+    query.add("user_settings", {theme: "dark", notifications: true});
+
+    // Retrieve data
+    const token = query.get("user_token");
+    const name = query.get("user_name");
+    const settings = query.get("user_settings");
 </pre>
-    </div>
+                </div>
+                <button onclick="runBasicStorage()">Run Example</button>
+                <div id="basic-storage-result"></div>
+            </div>
+
+            <div class="demo-item beginner">
+                <span class="difficulty-badge beginner-badge">Beginner</span>
+                <h3>2. Data Deletion (query.delete)</h3>
+                <div class="code-block">// Delete specific data
+query.delete("user_token");
+
+// Check if data was deleted
+const deletedToken = query.get("user_token");</div>
+                <button onclick="runBasicDeletion()">Run Example</button>
+                <div id="basic-deletion-result"></div>
+            </div>
+
+            <div class="demo-item beginner">
+                <span class="difficulty-badge beginner-badge">Beginner</span>
+                <h3>3. Working with Arrays</h3>
+                <div class="code-block">// Create sample data
+const users = [
+  {id: 1, name: "Alice", age: 25, city: "New York"},
+  {id: 2, name: "Bob", age: 30, city: "Los Angeles"},
+  {id: 3, name: "Carol", age: 28, city: "Chicago"}
+];
+
+// Simple SELECT queries
+const allUsers = query("SELECT * FROM ?", [users]);
+const names = query("SELECT name, age FROM ?", [users]);
+const adults = query("SELECT * FROM ? WHERE age >= 30", [users]);</div>
+                <button onclick="runBasicArrays()">Run Example</button>
+                <div id="basic-arrays-result"></div>
+            </div>
+
+            <div class="demo-item beginner">
+                <span class="difficulty-badge beginner-badge">Beginner</span>
+                <h3>4. Table Management</h3>
+                <div class="code-block">// Save data as table
+const products = [
+  {id: 1, name: "Laptop", price: 999, category: "Electronics"},
+  {id: 2, name: "Book", price: 15, category: "Education"},
+  {id: 3, name: "Coffee Mug", price: 12, category: "Home"}
+];
+
+query.saveTable("products", products);
+
+// List all tables
+const tables = query.listTables();
+
+// Get table data
+const savedProducts = query.getTable("products");</div>
+                <button onclick="runTableManagement()">Run Example</button>
+                <div id="table-management-result"></div>
+            </div>
         </div>
 
-        <!-- Basic Queries -->
-        <section id="basic">
-            <h2>🔰 Basic Queries</h2>
+        <div id="intermediate" class="demo-section">
+            <h2>🟡 Intermediate Examples</h2>
 
-            <div class="example">
-                <h3>Simple SELECT *</h3>
-                <div class="code">query("SELECT * FROM ?", [users]);</div>
-                <button class="run-btn" onclick="runExample('basic1')">Run Example</button>
-                <div id="basic1" class="result"></div>
+            <div class="demo-item intermediate">
+                <span class="difficulty-badge intermediate-badge">Intermediate</span>
+                <h3>5. INSERT, UPDATE, DELETE with localStorage</h3>
+                <div class="code-block">// INSERT data directly to localStorage
+query("INSERT INTO employees", [
+  {id: 1, name: "John Smith", department: "IT", salary: 70000},
+  {id: 2, name: "Jane Doe", department: "HR", salary: 65000},
+  {id: 3, name: "Mike Johnson", department: "IT", salary: 75000}
+]);
+
+// UPDATE data in localStorage
+query("UPDATE employees SET salary = 80000 WHERE name = 'John Smith'");
+
+// DELETE data from localStorage
+query("DELETE FROM employees WHERE department = 'HR'");
+
+// SELECT from localStorage
+const employees = query("SELECT * FROM employees");</div>
+                <button onclick="runCRUDOperations()">Run Example</button>
+                <div id="crud-operations-result"></div>
             </div>
 
-            <div class="example">
-                <h3>SELECT Specific Columns</h3>
-                <div class="code">query("SELECT name, email FROM ?", [users]);</div>
-                <button class="run-btn" onclick="runExample('basic2')">Run Example</button>
-                <div id="basic2" class="result"></div>
+            <div class="demo-item intermediate">
+                <span class="difficulty-badge intermediate-badge">Intermediate</span>
+                <h3>6. Aggregation Functions</h3>
+                <div class="code-block">// Sample sales data
+const sales = [
+  {id: 1, product: "Laptop", amount: 1200, region: "North"},
+  {id: 2, product: "Phone", amount: 800, region: "South"},
+  {id: 3, product: "Laptop", amount: 1200, region: "North"},
+  {id: 4, product: "Tablet", amount: 500, region: "East"},
+  {id: 5, product: "Phone", amount: 800, region: "West"}
+];
+
+// Aggregation queries
+const totalSales = query("SELECT COUNT(*) as count, SUM(amount) as total FROM ?", [sales]);
+const avgByRegion = query("SELECT region, AVG(amount) as avg_amount FROM ? GROUP BY region", [sales]);
+const productStats = query("SELECT product, COUNT(*) as count, MAX(amount) as max_price FROM ? GROUP BY product", [sales]);</div>
+                <button onclick="runAggregations()">Run Example</button>
+                <div id="aggregations-result"></div>
             </div>
 
-            <div class="example">
-                <h3>Simple WHERE Clause</h3>
-                <div class="code">query("SELECT * FROM ? WHERE age > ?", [users, 30]);</div>
-                <button class="run-btn" onclick="runExample('basic3')">Run Example</button>
-                <div id="basic3" class="result"></div>
+            <div class="demo-item intermediate">
+                <span class="difficulty-badge intermediate-badge">Intermediate</span>
+                <h3>7. String and Math Functions</h3>
+                <div class="code-block">// Sample customer data
+const customers = [
+  {id: 1, firstName: "john", lastName: "doe", email: "john.doe@email.com", score: 85.7},
+  {id: 2, firstName: "jane", lastName: "smith", email: "jane.smith@email.com", score: 92.3},
+  {id: 3, firstName: "bob", lastName: "johnson", email: "bob.j@email.com", score: 78.9}
+];
+
+// String and Math function examples
+const formattedNames = query(`
+  SELECT 
+    UPPER(firstName) as first_name,
+    UPPER(lastName) as last_name,
+    CONCAT(UPPER(firstName), ' ', UPPER(lastName)) as full_name,
+    LENGTH(email) as email_length,
+    ROUND(score) as rounded_score,
+    CEIL(score) as score_ceiling
+  FROM ?
+`, [customers]);</div>
+                <button onclick="runFunctions()">Run Example</button>
+                <div id="functions-result"></div>
             </div>
 
-            <div class="example">
-                <h3>INSERT New Record</h3>
-                <div class="code">
-const newUser = { id: 6, name: "David Lee", email: "david@gmail.com", age: 27, city: "Miami", salary: 52000 };
-query("INSERT INTO ?", [users, newUser]);
-console.log("Inserted:", newUser);</div>
-                <button class="run-btn" onclick="runExample('basic4')">Run Example</button>
-                <div id="basic4" class="result"></div>
+            <div class="demo-item intermediate">
+                <span class="difficulty-badge intermediate-badge">Intermediate</span>
+                <h3>8. WHERE Conditions with LIKE and BETWEEN</h3>
+                <div class="code-block">// Sample product data
+const inventory = [
+  {id: 1, name: "Apple iPhone", price: 999, stock: 50, category: "Electronics"},
+  {id: 2, name: "Samsung Galaxy", price: 799, stock: 30, category: "Electronics"},
+  {id: 3, name: "Apple MacBook", price: 1299, stock: 20, category: "Computers"},
+  {id: 4, name: "Dell Laptop", price: 899, stock: 25, category: "Computers"},
+  {id: 5, name: "Apple Watch", price: 399, stock: 100, category: "Wearables"}
+];
+
+// Advanced WHERE conditions
+const appleProducts = query("SELECT * FROM ? WHERE name LIKE 'Apple%'", [inventory]);
+const midRangeProducts = query("SELECT * FROM ? WHERE price BETWEEN 500 AND 1000", [inventory]);
+const lowStock = query("SELECT * FROM ? WHERE stock < 30 AND category = 'Electronics'", [inventory]);</div>
+                <button onclick="runAdvancedWhere()">Run Example</button>
+                <div id="advanced-where-result"></div>
+            </div>
+        </div>
+
+        <div id="advanced" class="demo-section">
+            <h2>🔴 Advanced Examples</h2>
+
+            <div class="demo-item advanced">
+                <span class="difficulty-badge advanced-badge">Advanced</span>
+                <h3>9. JOIN Operations</h3>
+                <div class="code-block">// Setup related tables
+const users = [
+  {id: 1, name: "Alice Johnson", email: "alice@company.com"},
+  {id: 2, name: "Bob Smith", email: "bob@company.com"},
+  {id: 3, name: "Carol Davis", email: "carol@company.com"}
+];
+
+const orders = [
+  {id: 101, user_id: 1, product: "Laptop", amount: 1200, date: "2024-01-15"},
+  {id: 102, user_id: 2, product: "Mouse", amount: 25, date: "2024-01-16"},
+  {id: 103, user_id: 1, product: "Keyboard", amount: 75, date: "2024-01-17"},
+  {id: 104, user_id: 3, product: "Monitor", amount: 300, date: "2024-01-18"}
+];
+
+query.saveTable("users", users);
+query.saveTable("orders", orders);
+
+// INNER JOIN
+const userOrders = query(`
+  SELECT u.name, u.email, o.product, o.amount, o.date
+  FROM users u
+  INNER JOIN orders o ON u.id = o.user_id
+  ORDER BY o.amount DESC
+`);</div>
+                <button onclick="runJoinOperations()">Run Example</button>
+                <div id="join-operations-result"></div>
             </div>
 
-            <div class="example">
-                <h3>UPDATE Records</h3>
-                <div class="code">query("UPDATE ? SET salary = 65000 WHERE name = 'Jane Smith'", [users]);</div>
-                <button class="run-btn" onclick="runExample('basic5')">Run Example</button>
-                <div id="basic5" class="result"></div>
+            <div class="demo-item advanced">
+                <span class="difficulty-badge advanced-badge">Advanced</span>
+                <h3>10. Named Parameters</h3>
+                <div class="code-block">// Named parameter queries for dynamic filtering
+const searchParams = {
+  minPrice: 500,
+  category: "Electronics",
+  stockThreshold: 25
+};
+
+const dynamicQuery = query(`
+  SELECT name, price, stock, 
+         (price * stock) as inventory_value
+  FROM inventory 
+  WHERE price >= :minPrice 
+    AND category = :category 
+    AND stock > :stockThreshold
+  ORDER BY inventory_value DESC
+`, [searchParams]);</div>
+                <button onclick="runNamedParameters()">Run Example</button>
+                <div id="named-parameters-result"></div>
             </div>
 
-            <div class="example">
-                <h3>DELETE Records</h3>
-                <div class="code">query("DELETE FROM ? WHERE age < 26", [users]);</div>
-                <button class="run-btn" onclick="runExample('basic6')">Run Example</button>
-                <div id="basic6" class="result"></div>
-            </div>
-        </section>
+            <div class="demo-item advanced">
+                <span class="difficulty-badge advanced-badge">Advanced</span>
+                <h3>11. Date Functions</h3>
+                <div class="code-block">// Sample data with dates
+const transactions = [
+  {id: 1, amount: 250, date: "2024-01-15", type: "purchase"},
+  {id: 2, amount: 100, date: "2024-02-20", type: "refund"},
+  {id: 3, amount: 500, date: "2024-03-10", type: "purchase"},
+  {id: 4, amount: 75, date: "2024-01-25", type: "purchase"}
+];
 
-        <!-- Intermediate Queries -->
-        <section id="intermediate">
-            <h2>⚡ Intermediate Queries</h2>
-
-            <div class="example">
-                <h3>Column Aliases <span class="feature-tag">AS</span></h3>
-                <div class="code">query("SELECT name AS fullName, email AS emailAddress, age AS yearsOld FROM ?", [users]);</div>
-                <button class="run-btn" onclick="runExample('inter1')">Run Example</button>
-                <div id="inter1" class="result"></div>
-            </div>
-
-            <div class="example">
-                <h3>ORDER BY</h3>
-                <div class="code">query("SELECT name, age FROM ? ORDER BY age DESC", [users]);</div>
-                <button class="run-btn" onclick="runExample('inter2')">Run Example</button>
-                <div id="inter2" class="result"></div>
-            </div>
-
-            <div class="example">
-                <h3>LIMIT and OFFSET</h3>
-                <div class="code">query("SELECT * FROM ? LIMIT 3 OFFSET 1", [users]);</div>
-                <button class="run-btn" onclick="runExample('inter3')">Run Example</button>
-                <div id="inter3" class="result"></div>
+// Date function examples
+const dateAnalysis = query(`
+  SELECT 
+    date,
+    YEAR(date) as year,
+    MONTH(date) as month,
+    DAY(date) as day,
+    amount,
+    DATEDIFF('day', date, NOW()) as days_ago
+  FROM ?
+  WHERE MONTH(date) = 1
+  ORDER BY date
+`, [transactions]);</div>
+                <button onclick="runDateFunctions()">Run Example</button>
+                <div id="date-functions-result"></div>
             </div>
 
-            <div class="example">
-                <h3>DISTINCT <span class="feature-tag">NEW</span></h3>
-                <div class="code">query("SELECT DISTINCT city FROM ?", [users]);</div>
-                <button class="run-btn" onclick="runExample('inter4')">Run Example</button>
-                <div id="inter4" class="result"></div>
+            <div class="demo-item advanced">
+                <span class="difficulty-badge advanced-badge">Advanced</span>
+                <h3>12. Complex Aggregations with HAVING</h3>
+                <div class="code-block">// Customer order analysis
+const customerOrders = [
+  {customer_id: 1, customer_name: "Alice", order_amount: 150, order_date: "2024-01-10"},
+  {customer_id: 1, customer_name: "Alice", order_amount: 200, order_date: "2024-01-15"},
+  {customer_id: 2, customer_name: "Bob", order_amount: 50, order_date: "2024-01-12"},
+  {customer_id: 2, customer_name: "Bob", order_amount: 300, order_date: "2024-01-20"},
+  {customer_id: 3, customer_name: "Carol", order_amount: 75, order_date: "2024-01-18"},
+  {customer_id: 3, customer_name: "Carol", order_amount: 125, order_date: "2024-01-25"}
+];
+
+// High-value customer analysis
+const vipCustomers = query(`
+  SELECT 
+    customer_name,
+    COUNT(*) as order_count,
+    SUM(order_amount) as total_spent,
+    AVG(order_amount) as avg_order_value,
+    MAX(order_amount) as largest_order
+  FROM ?
+  GROUP BY customer_id, customer_name
+  HAVING SUM(order_amount) > 200
+  ORDER BY total_spent DESC
+`, [customerOrders]);</div>
+                <button onclick="runComplexAggregations()">Run Example</button>
+                <div id="complex-aggregations-result"></div>
+            </div>
+        </div>
+
+        <div id="performance" class="demo-section">
+            <h2>⚡ Performance Features</h2>
+
+            <div class="demo-item advanced">
+                <span class="difficulty-badge advanced-badge">Advanced</span>
+                <h3>13. Index Management</h3>
+                <div class="code-block">// Create large dataset for indexing demo
+const largeDataset = [];
+for (let i = 1; i <= 1000; i++) {
+  largeDataset.push({
+    id: i,
+    name: `User ${i}`,
+    department: ['IT', 'HR', 'Sales', 'Marketing'][i % 4],
+    salary: 30000 + (i * 100),
+    age: 22 + (i % 40)
+  });
+}
+
+// Create indexes for performance
+query.createIndex(largeDataset, 'department', 'hash');
+query.createIndex(largeDataset, 'salary', 'sorted');
+
+// Get index information
+const indexInfo = query.getIndexInfo(largeDataset);
+
+// Performance test query
+const itEmployees = query("SELECT * FROM ? WHERE department = ?", [largeDataset, "IT"]);</div>
+                <button onclick="runIndexManagement()">Run Example</button>
+                <div id="index-management-result"></div>
             </div>
 
-            <div class="example">
-                <h3>Complex WHERE with AND/OR</h3>
-                <div class="code">query("SELECT * FROM ? WHERE (age > 25 AND city = 'New York') OR salary > 60000", [users]);</div>
-                <button class="run-btn" onclick="runExample('inter5')">Run Example</button>
-                <div id="inter5" class="result"></div>
+            <div class="demo-item intermediate">
+                <span class="difficulty-badge intermediate-badge">Intermediate</span>
+                <h3>14. Pagination with LIMIT and OFFSET</h3>
+                <div class="code-block">// Pagination example
+const pageSize = 5;
+const pageNumber = 2; // Get page 2
+const offset = (pageNumber - 1) * pageSize;
+
+const paginatedResults = query(`
+  SELECT id, name, department, salary
+  FROM ?
+  ORDER BY salary DESC
+  LIMIT ${pageSize} OFFSET ${offset}
+`, [largeDataset]);
+
+// Get total count for pagination info
+const totalCount = query("SELECT COUNT(*) as total FROM ?", [largeDataset]);</div>
+                <button onclick="runPagination()">Run Example</button>
+                <div id="pagination-result"></div>
             </div>
-        </section>
+        </div>
 
-        <!-- Advanced Queries -->
-        <section id="advanced">
-            <h2>🎯 Advanced Queries</h2>
+        <div id="realworld" class="demo-section">
+            <h2>🌍 Real-World Examples</h2>
 
-            <div class="example">
-                <h3>GROUP BY with Aggregates</h3>
-                <div class="code">query("SELECT city, COUNT(*) AS userCount, AVG(salary) AS avgSalary FROM ? GROUP BY city", [users]);</div>
-                <button class="run-btn" onclick="runExample('adv1')">Run Example</button>
-                <div id="adv1" class="result"></div>
-            </div>
+            <div class="demo-item advanced">
+                <span class="difficulty-badge advanced-badge">Advanced</span>
+                <h3>15. E-commerce Dashboard</h3>
+                <div class="code-block">// E-commerce analytics example
+const ecommerceOrders = [
+  {id: 1, customer_id: 1, product: "Laptop", category: "Electronics", amount: 1200, date: "2024-01-15", status: "completed"},
+  {id: 2, customer_id: 2, product: "Book", category: "Education", amount: 25, date: "2024-01-16", status: "completed"},
+  {id: 3, customer_id: 1, product: "Mouse", category: "Electronics", amount: 50, date: "2024-01-17", status: "pending"},
+  {id: 4, customer_id: 3, product: "Notebook", category: "Office", amount: 15, date: "2024-01-18", status: "completed"},
+  {id: 5, customer_id: 2, product: "Keyboard", category: "Electronics", amount: 75, date: "2024-01-19", status: "cancelled"}
+];
 
-            <div class="example">
-                <h3>All Aggregate Functions <span class="feature-tag">NEW</span></h3>
-                <div class="code">query(`
-SELECT 
-    city,
-    COUNT(*) AS total,
-    COUNT(salary) AS withSalary,
-    SUM(salary) AS totalSalary,
-    AVG(salary) AS avgSalary,
-    MIN(salary) AS minSalary,
-    MAX(salary) AS maxSalary
-FROM ? 
-GROUP BY city`, [users]);</div>
-                <button class="run-btn" onclick="runExample('adv2')">Run Example</button>
-                <div id="adv2" class="result"></div>
-            </div>
-
-            <div class="example">
-                <h3>HAVING Clause</h3>
-                <div class="code">query("SELECT city, COUNT(*) AS userCount FROM ? GROUP BY city HAVING COUNT(*) > 1", [users]);</div>
-                <button class="run-btn" onclick="runExample('adv3')">Run Example</button>
-                <div id="adv3" class="result"></div>
-            </div>
-
-            <div class="example">
-                <h3>Complex Query with All Clauses</h3>
-                <div class="code">query(`
-SELECT 
-    city AS location, 
-    COUNT(*) AS users, 
-    AVG(age) AS avgAge
-FROM ? 
-WHERE salary IS NOT NULL 
-GROUP BY city 
-HAVING COUNT(*) >= 1
-ORDER BY avgAge DESC 
-LIMIT 5`, [users]);</div>
-                <button class="run-btn" onclick="runExample('adv4')">Run Example</button>
-                <div id="adv4" class="result"></div>
-            </div>
-        </section>
-
-        <!-- Named Parameters -->
-        <section id="named-params">
-            <h2>🏷️ Named Parameters</h2>
-
-            <div class="example">
-                <h3>Basic Named Parameters <span class="feature-tag">NEW</span></h3>
-                <div class="code">query("SELECT * FROM :tbl WHERE id = :userId", [{ tbl: users, userId: 2 }]);</div>
-                <button class="run-btn" onclick="runExample('named1')">Run Example</button>
-                <div id="named1" class="result"></div>
-            </div>
-
-            <div class="example">
-                <h3>Multiple Named Parameters</h3>
-                <div class="code">query("SELECT name, age FROM :tbl WHERE age > :minAge AND city = :targetCity", [
-    { tbl: users, minAge: 25, targetCity: "New York" }
-]);</div>
-                <button class="run-btn" onclick="runExample('named2')">Run Example</button>
-                <div id="named2" class="result"></div>
-            </div>
-
-            <div class="example">
-                <h3>Named Parameters with LIKE</h3>
-                <div class="code">query("SELECT * FROM :tbl WHERE email LIKE :domain", [
-    { tbl: users, domain: "%@gmail.com" }
-]);</div>
-                <button class="run-btn" onclick="runExample('named3')">Run Example</button>
-                <div id="named3" class="result"></div>
-            </div>
-        </section>
-
-        <!-- Operators -->
-        <section id="operators">
-            <h2>🔧 Advanced Operators</h2>
-
-            <div class="example">
-                <h3>BETWEEN Operator <span class="feature-tag">NEW</span></h3>
-                <div class="code">query("SELECT name, age FROM ? WHERE age BETWEEN 25 AND 32", [users]);</div>
-                <button class="run-btn" onclick="runExample('op1')">Run Example</button>
-                <div id="op1" class="result"></div>
-            </div>
-
-            <div class="example">
-                <h3>LIKE Operator with Wildcards <span class="feature-tag">NEW</span></h3>
-                <div class="code">query("SELECT name, email FROM ? WHERE name LIKE 'J%'", [users]);</div>
-                <button class="run-btn" onclick="runExample('op2')">Run Example</button>
-                <div id="op2" class="result"></div>
-            </div>
-
-            <div class="example">
-                <h3>IS NULL / IS NOT NULL <span class="feature-tag">NEW</span></h3>
-                <div class="code">query("SELECT name, email, salary FROM ? WHERE email IS NULL OR salary IS NULL", [users]);</div>
-                <button class="run-btn" onclick="runExample('op3')">Run Example</button>
-                <div id="op3" class="result"></div>
-            </div>
-
-            <div class="example">
-                <h3>Complex Operator Combinations</h3>
-                <div class="code">query(`SELECT name, age, salary 
-FROM ? 
-WHERE age BETWEEN 25 AND 35 
-  AND name LIKE '%o%'
-  AND salary IS NOT NULL`, [users]);</div>
-                <button class="run-btn" onclick="runExample('op4')">Run Example</button>
-                <div id="op4" class="result"></div>
-            </div>
-        </section>
-
-        <!-- Real-world Examples -->
-        <section id="real-world">
-            <h2>🌎 Real-world Examples</h2>
-
-            <div class="example">
-                <h3>User Analytics Dashboard</h3>
-                <div class="code">query(`
-SELECT 
-    city AS location,
-    COUNT(*) AS totalUsers,
-    COUNT(salary) AS usersWithSalary,
-    ROUND(AVG(salary)) AS avgSalary,
-    MIN(age) AS youngestUser,
-    MAX(age) AS oldestUser
-FROM ? 
-WHERE email IS NOT NULL
-GROUP BY city
-ORDER BY totalUsers DESC`, [users]);</div>
-                <button class="run-btn" onclick="runExample('real1')">Run Example</button>
-                <div id="real1" class="result"></div>
-            </div>
-
-            <div class="example">
-                <h3>Product Inventory Report</h3>
-                <div class="code">query(`
-SELECT 
+// Sales by category
+const salesByCategory = query(`
+  SELECT 
     category,
-    COUNT(*) AS productCount,
-    SUM(stock) AS totalStock,
-    AVG(price) AS avgPrice,
-    MIN(price) AS cheapest,
-    MAX(price) AS mostExpensive
-FROM ?
-GROUP BY category
-ORDER BY totalStock DESC`, [products]);</div>
-                <button class="run-btn" onclick="runExample('real2')">Run Example</button>
-                <div id="real2" class="result"></div>
+    COUNT(*) as order_count,
+    SUM(amount) as total_revenue,
+    AVG(amount) as avg_order_value
+  FROM ?
+  WHERE status = 'completed'
+  GROUP BY category
+  ORDER BY total_revenue DESC
+`, [ecommerceOrders]);
+
+// Top customers
+const topCustomers = query(`
+  SELECT 
+    customer_id,
+    COUNT(*) as order_count,
+    SUM(amount) as total_spent
+  FROM ?
+  WHERE status = 'completed'
+  GROUP BY customer_id
+  HAVING COUNT(*) > 1
+  ORDER BY total_spent DESC
+`, [ecommerceOrders]);</div>
+                <button onclick="runEcommerceDashboard()">Run Example</button>
+                <div id="ecommerce-dashboard-result"></div>
             </div>
 
-            <div class="example">
-                <h3>Search with Multiple Filters</h3>
-                <div class="code">query(`
-SELECT DISTINCT name AS productName, price, stock
-FROM :products
-WHERE category = :cat 
-  AND price BETWEEN :minPrice AND :maxPrice
-  AND stock > :minStock
-ORDER BY price ASC`, [
-    { 
-        products: products, 
-        cat: "Electronics", 
-        minPrice: 20, 
-        maxPrice: 1000, 
-        minStock: 40 
-    }
-]);</div>
-                <button class="run-btn" onclick="runExample('real3')">Run Example</button>
-                <div id="real3" class="result"></div>
-            </div>
-        </section>
+            <div class="demo-item advanced">
+                <span class="difficulty-badge advanced-badge">Advanced</span>
+                <h3>16. User Analytics</h3>
+                <div class="code-block">// User session analytics
+const userSessions = [
+  {user_id: 1, session_date: "2024-01-15", page_views: 15, duration: 1200, device: "desktop"},
+  {user_id: 2, session_date: "2024-01-15", page_views: 8, duration: 600, device: "mobile"},
+  {user_id: 1, session_date: "2024-01-16", page_views: 22, duration: 1800, device: "desktop"},
+  {user_id: 3, session_date: "2024-01-16", page_views: 5, duration: 300, device: "mobile"},
+  {user_id: 2, session_date: "2024-01-17", page_views: 12, duration: 900, device: "tablet"}
+];
 
-        <div style="margin-top: 50px; text-align: center; color: #7f8c8d;">
-            <p>🎉 <strong>Your SQL Query Function supports all major SQL operations!</strong></p>
-            <p>Features: SELECT, INSERT, UPDATE, DELETE, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT, DISTINCT, Aggregates, Named Parameters, and Advanced Operators</p>
+// Daily engagement metrics
+const dailyMetrics = query(`
+  SELECT 
+    session_date,
+    COUNT(DISTINCT user_id) as unique_users,
+    SUM(page_views) as total_page_views,
+    AVG(page_views) as avg_page_views,
+    SUM(duration) as total_duration,
+    AVG(duration) as avg_session_duration
+  FROM ?
+  GROUP BY session_date
+  ORDER BY session_date
+`, [userSessions]);
+
+// Device usage analysis
+const deviceStats = query(`
+  SELECT 
+    device,
+    COUNT(*) as session_count,
+    AVG(page_views) as avg_page_views,
+    AVG(duration) as avg_duration
+  FROM ?
+  GROUP BY device
+  ORDER BY session_count DESC
+`, [userSessions]);</div>
+                <button onclick="runUserAnalytics()">Run Example</button>
+                <div id="user-analytics-result"></div>
+            </div>
+
+            <div class="demo-item advanced">
+                <span class="difficulty-badge advanced-badge">Advanced</span>
+                <h3>17. Inventory Management System</h3>
+                <div class="code-block">// Comprehensive inventory analysis
+const inventoryData = [
+  {id: 1, product: "Laptop Pro", category: "Electronics", stock: 15, price: 1299, cost: 800, supplier: "TechCorp"},
+  {id: 2, product: "Office Chair", category: "Furniture", stock: 45, price: 199, cost: 120, supplier: "FurniMax"},
+  {id: 3, product: "Smartphone", category: "Electronics", stock: 8, price: 699, cost: 400, supplier: "TechCorp"},
+  {id: 4, product: "Desk Lamp", category: "Furniture", stock: 60, price: 49, cost: 25, supplier: "LightCo"},
+  {id: 5, product: "Tablet", category: "Electronics", stock: 25, price: 399, cost: 250, supplier: "TechCorp"}
+];
+
+// Low stock alerts
+const lowStockAlert = query(`
+  SELECT 
+    product,
+    category,
+    stock,
+    price,
+    (stock * price) as stock_value
+  FROM ?
+  WHERE stock < 20
+  ORDER BY stock ASC
+`, [inventoryData]);
+
+// Profit analysis by category
+const profitByCategory = query(`
+  SELECT 
+    category,
+    COUNT(*) as product_count,
+    SUM(stock * (price - cost)) as total_profit,
+    AVG(price - cost) as avg_profit_per_unit,
+    SUM(stock * cost) as total_inventory_cost
+  FROM ?
+  GROUP BY category
+  ORDER BY total_profit DESC
+`, [inventoryData]);
+
+// Supplier performance
+const supplierAnalysis = query(`
+  SELECT 
+    supplier,
+    COUNT(*) as product_count,
+    AVG(price) as avg_price,
+    SUM(stock) as total_stock
+  FROM ?
+  GROUP BY supplier
+  ORDER BY product_count DESC
+`, [inventoryData]);</div>
+                <button onclick="runInventoryManagement()">Run Example</button>
+                <div id="inventory-management-result"></div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>📊 Storage Information</h2>
+            <button onclick="showStorageInfo()">Show Current Storage</button>
+            <div id="storage-info-result"></div>
         </div>
     </div>
 
-    <script src="query.js"></script>
     <script>
-        // Sample data
-        let users = [
-            { id: 1, name: "John Doe", email: "john@gmail.com", age: 25, city: "New York", salary: 50000 },
-            { id: 2, name: "Jane Smith", email: "jane@yahoo.com", age: 30, city: "Los Angeles", salary: 60000 },
-            { id: 3, name: "Bob Johnson", email: "bob@gmail.com", age: 35, city: "Chicago", salary: 55000 },
-            { id: 4, name: "Alice Brown", email: "alice@hotmail.com", age: 28, city: "New York", salary: null },
-            { id: 5, name: "Charlie Wilson", email: null, age: 32, city: "Los Angeles", salary: 70000 }
-        ];
-
-        const products = [
-            { id: 1, name: "Laptop", category: "Electronics", price: 999, stock: 50 },
-            { id: 2, name: "Mouse", category: "Electronics", price: 25, stock: 100 },
-            { id: 3, name: "Desk", category: "Furniture", price: 299, stock: 20 },
-            { id: 4, name: "Chair", category: "Furniture", price: 199, stock: 30 }
-        ];
-
-        function runExample(elementId) {
-            const resultDiv = document.getElementById(elementId);
-            let result;
+        function displayResult(elementId, title, data, isError = false) {
+            const element = document.getElementById(elementId);
+            const blockClass = isError ? 'error-block' : 'result-block';
             
+            let content = `<div class="${blockClass}">`;
+            content += `<strong>${title}</strong>\n`;
+            content += '<pre>';
+            
+            if (typeof data === 'object') {
+                content += JSON.stringify(data, null, 2);
+            } else {
+                content += data;
+            }
+            
+            content += '</pre>';
+            content += '</div>';
+            element.innerHTML = content;
+        }
+
+        function displayStatus(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            const statusClass = isSuccess ? 'success' : 'info';
+            
+            element.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        // Beginner Examples
+        function runBasicStorage() {
             try {
-                switch(elementId) {
-                    case 'basic1':
-                        result = query("SELECT * FROM ?", [users]);
-                        break;
-                    case 'basic2':
-                        result = query("SELECT name, email FROM ?", [users]);
-                        break;
-                    case 'basic3':
-                        result = query("SELECT * FROM ? WHERE age > ?", [users, 30]);
-                        break;
-                    case 'basic4':
-                        const newUser = { id: 6, name: "David Lee", email: "david@gmail.com", age: 27, city: "Miami", salary: 52000 };
-                        result = query("INSERT INTO ?", [users, newUser]);
-                        result = "✅ Inserted: " + JSON.stringify(newUser, null, 2);
-                        break;
-                    case 'basic5':
-                        result = query("UPDATE ? SET salary = 65000 WHERE name = 'Jane Smith'", [users]);
-                        result = "✅ Updated Jane Smith's salary. Current users: " + JSON.stringify(users.filter(u => u.name === 'Jane Smith'), null, 2);
-                        break;
-                    case 'basic6':
-                        const originalLength = users.length;
-                        result = query("DELETE FROM ? WHERE age < 26", [users]);
-                        result = `✅ Deleted ${originalLength - users.length} users with age < 26. Remaining users: ${users.length}`;
-                        break;
-                    case 'inter1':
-                        result = query("SELECT name AS fullName, email AS emailAddress, age AS yearsOld FROM ?", [users]);
-                        break;
-                    case 'inter2':
-                        result = query("SELECT name, age FROM ? ORDER BY age DESC", [users]);
-                        break;
-                    case 'inter3':
-                        result = query("SELECT * FROM ? LIMIT 3 OFFSET 1", [users]);
-                        break;
-                    case 'inter4':
-                        result = query("SELECT DISTINCT city FROM ?", [users]);
-                        break;
-                    case 'inter5':
-                        result = query("SELECT * FROM ? WHERE (age > 25 AND city = 'New York') OR salary > 60000", [users]);
-                        break;
-                    case 'adv1':
-                        result = query("SELECT city, COUNT(*) AS userCount, AVG(salary) AS avgSalary FROM ? GROUP BY city", [users]);
-                        break;
-                    case 'adv2':
-                        result = query(`SELECT city, COUNT(*) AS total, COUNT(salary) AS withSalary, SUM(salary) AS totalSalary, AVG(salary) AS avgSalary, MIN(salary) AS minSalary, MAX(salary) AS maxSalary FROM ? GROUP BY city`, [users]);
-                        break;
-                    case 'adv3':
-                        result = query("SELECT city, COUNT(*) AS userCount FROM ? GROUP BY city HAVING COUNT(*) > 1", [users]);
-                        break;
-                    case 'adv4':
-                        result = query(`SELECT city AS location, COUNT(*) AS users, AVG(age) AS avgAge FROM ? WHERE salary IS NOT NULL GROUP BY city HAVING COUNT(*) >= 1 ORDER BY avgAge DESC LIMIT 5`, [users]);
-                        break;
-                    case 'named1':
-                        result = query("SELECT * FROM :tbl WHERE id = :userId", [{ tbl: users, userId: 2 }]);
-                        break;
-                    case 'named2':
-                        result = query("SELECT name, age FROM :tbl WHERE age > :minAge AND city = :targetCity", [{ tbl: users, minAge: 25, targetCity: "New York" }]);
-                        break;
-                    case 'named3':
-                        result = query("SELECT * FROM :tbl WHERE email LIKE :domain", [{ tbl: users, domain: "%@gmail.com" }]);
-                        break;
-                    case 'op1':
-                        result = query("SELECT name, age FROM ? WHERE age BETWEEN 25 AND 32", [users]);
-                        break;
-                    case 'op2':
-                        result = query("SELECT name, email FROM ? WHERE name LIKE 'J%'", [users]);
-                        break;
-                    case 'op3':
-                        result = query("SELECT name, email, salary FROM ? WHERE email IS NULL OR salary IS NULL", [users]);
-                        break;
-                    case 'op4':
-                        result = query(`SELECT name, age, salary FROM ? WHERE age BETWEEN 25 AND 35 AND name LIKE '%o%' AND salary IS NOT NULL`, [users]);
-                        break;
-                    case 'real1':
-                        result = query(`SELECT city AS location, COUNT(*) AS totalUsers, COUNT(salary) AS usersWithSalary, AVG(salary) AS avgSalary, MIN(age) AS youngestUser, MAX(age) AS oldestUser FROM ? WHERE email IS NOT NULL GROUP BY city ORDER BY totalUsers DESC`, [users]);
-                        break;
-                    case 'real2':
-                        result = query(`SELECT category, COUNT(*) AS productCount, SUM(stock) AS totalStock, AVG(price) AS avgPrice, MIN(price) AS cheapest, MAX(price) AS mostExpensive FROM ? GROUP BY category ORDER BY totalStock DESC`, [products]);
-                        break;
-                    case 'real3':
-                        result = query(`SELECT DISTINCT name AS productName, price, stock FROM :products WHERE category = :cat AND price BETWEEN :minPrice AND :maxPrice AND stock > :minStock ORDER BY price ASC`, [{ products: products, cat: "Electronics", minPrice: 20, maxPrice: 1000, minStock: 40 }]);
-                        break;
-                    default:
-                        result = "Example not found";
-                }
+                // Store data
+                query.add("user_token", "abc123xyz");
+                query.add("user_name", "John Doe");
+                query.add("user_settings", {theme: "dark", notifications: true});
                 
-                resultDiv.textContent = JSON.stringify(result, null, 2);
-                resultDiv.style.display = 'block';
+                // Retrieve data
+                const token = query.get("user_token");
+                const name = query.get("user_name");
+                const settings = query.get("user_settings");
+                
+                const results = {
+                    stored_token: "abc123xyz",
+                    retrieved_token: token,
+                    stored_name: "John Doe",
+                    retrieved_name: name,
+                    stored_settings: {theme: "dark", notifications: true},
+                    retrieved_settings: settings
+                };
+                
+                displayResult('basic-storage-result', 'Storage Results:', results);
+                displayStatus('basic-storage-result', '✅ Data stored and retrieved successfully!');
             } catch (error) {
-                resultDiv.textContent = `❌ Error: ${error.message}`;
-                resultDiv.style.background = '#ffe6e6';
-                resultDiv.style.borderColor = '#ff9999';
+                displayResult('basic-storage-result', 'Error:', error.message, true);
             }
         }
 
-        // Reset data function for demos
-        function resetData() {
-            users = [
-                { id: 1, name: "John Doe", email: "john@gmail.com", age: 25, city: "New York", salary: 50000 },
-                { id: 2, name: "Jane Smith", email: "jane@yahoo.com", age: 30, city: "Los Angeles", salary: 60000 },
-                { id: 3, name: "Bob Johnson", email: "bob@gmail.com", age: 35, city: "Chicago", salary: 55000 },
-                { id: 4, name: "Alice Brown", email: "alice@hotmail.com", age: 28, city: "New York", salary: null },
-                { id: 5, name: "Charlie Wilson", email: null, age: 32, city: "Los Angeles", salary: 70000 }
-            ];
+        function runBasicDeletion() {
+            try {
+                // First add some data
+                query.add("temp_token", "temp123");
+                const beforeDeletion = query.get("temp_token");
+                
+                // Delete the data
+                const deleteResult = query.delete("temp_token");
+                const afterDeletion = query.get("temp_token");
+                
+                const results = {
+                    before_deletion: beforeDeletion,
+                    delete_operation_success: deleteResult,
+                    after_deletion: afterDeletion,
+                    is_actually_deleted: Array.isArray(afterDeletion) && afterDeletion.length === 0
+                };
+                
+                displayResult('basic-deletion-result', 'Deletion Results:', results);
+                displayStatus('basic-deletion-result', '✅ Data deleted successfully!');
+            } catch (error) {
+                displayResult('basic-deletion-result', 'Error:', error.message, true);
+            }
         }
 
-        // Add a reset button
+        function runBasicArrays() {
+            try {
+                const users = [
+                    {id: 1, name: "Alice", age: 25, city: "New York"},
+                    {id: 2, name: "Bob", age: 30, city: "Los Angeles"},
+                    {id: 3, name: "Carol", age: 28, city: "Chicago"}
+                ];
+                
+                const allUsers = query("SELECT * FROM ?", [users]);
+                const names = query("SELECT name, age FROM ?", [users]);
+                const adults = query("SELECT * FROM ? WHERE age >= 30", [users]);
+                
+                const results = {
+                    all_users: allUsers,
+                    names_and_ages: names,
+                    adults_30_plus: adults
+                };
+                
+                displayResult('basic-arrays-result', 'Array Query Results:', results);
+                displayStatus('basic-arrays-result', `✅ Processed ${users.length} users successfully!`);
+            } catch (error) {
+                displayResult('basic-arrays-result', 'Error:', error.message, true);
+            }
+        }
+
+        function runTableManagement() {
+            try {
+                const products = [
+                    {id: 1, name: "Laptop", price: 999, category: "Electronics"},
+                    {id: 2, name: "Book", price: 15, category: "Education"},
+                    {id: 3, name: "Coffee Mug", price: 12, category: "Home"}
+                ];
+                
+                query.saveTable("products", products);
+                const tables = query.listTables();
+                const savedProducts = query.getTable("products");
+                
+                const results = {
+                    original_products: products,
+                    all_tables: tables,
+                    retrieved_products: savedProducts
+                };
+                
+                displayResult('table-management-result', 'Table Management Results:', results);
+                displayStatus('table-management-result', `✅ Table saved with ${products.length} products!`);
+            } catch (error) {
+                displayResult('table-management-result', 'Error:', error.message, true);
+            }
+        }
+
+        // Intermediate Examples
+        function runCRUDOperations() {
+            try {
+                // INSERT
+                query("INSERT INTO employees", [
+                    {id: 1, name: "John Smith", department: "IT", salary: 70000},
+                    {id: 2, name: "Jane Doe", department: "HR", salary: 65000},
+                    {id: 3, name: "Mike Johnson", department: "IT", salary: 75000}
+                ]);
+                
+                const afterInsert = query("SELECT * FROM employees");
+                
+                // UPDATE
+                query("UPDATE employees SET salary = 80000 WHERE name = 'John Smith'");
+                const afterUpdate = query("SELECT * FROM employees WHERE name = 'John Smith'");
+                
+                // DELETE
+                query("DELETE FROM employees WHERE department = 'HR'");
+                const finalResult = query("SELECT * FROM employees");
+                
+                const results = {
+                    after_insert: afterInsert,
+                    after_update: afterUpdate,
+                    final_employees: finalResult
+                };
+                
+                displayResult('crud-operations-result', 'CRUD Operations Results:', results);
+                displayStatus('crud-operations-result', '✅ All CRUD operations completed successfully!');
+            } catch (error) {
+                displayResult('crud-operations-result', 'Error:', error.message, true);
+            }
+        }
+
+        function runAggregations() {
+            try {
+                const sales = [
+                    {id: 1, product: "Laptop", amount: 1200, region: "North"},
+                    {id: 2, product: "Phone", amount: 800, region: "South"},
+                    {id: 3, product: "Laptop", amount: 1200, region: "North"},
+                    {id: 4, product: "Tablet", amount: 500, region: "East"},
+                    {id: 5, product: "Phone", amount: 800, region: "West"}
+                ];
+                
+                const totalSales = query("SELECT COUNT(*) as count, SUM(amount) as total FROM ?", [sales]);
+                const avgByRegion = query("SELECT region, AVG(amount) as avg_amount FROM ? GROUP BY region", [sales]);
+                const productStats = query("SELECT product, COUNT(*) as count, MAX(amount) as max_price FROM ? GROUP BY product", [sales]);
+                
+                const results = {
+                    total_sales: totalSales,
+                    average_by_region: avgByRegion,
+                    product_statistics: productStats
+                };
+                
+                displayResult('aggregations-result', 'Aggregation Results:', results);
+                displayStatus('aggregations-result', `✅ Analyzed ${sales.length} sales records!`);
+            } catch (error) {
+                displayResult('aggregations-result', 'Error:', error.message, true);
+            }
+        }
+
+        function runFunctions() {
+            try {
+                const customers = [
+                    {id: 1, firstName: "john", lastName: "doe", email: "john.doe@email.com", score: 85.7},
+                    {id: 2, firstName: "jane", lastName: "smith", email: "jane.smith@email.com", score: 92.3},
+                    {id: 3, firstName: "bob", lastName: "johnson", email: "bob.j@email.com", score: 78.9}
+                ];
+                
+                const formattedNames = query(`
+                    SELECT 
+                        UPPER(firstName) as first_name,
+                        UPPER(lastName) as last_name,
+                        CONCAT(UPPER(firstName), ' ', UPPER(lastName)) as full_name,
+                        LENGTH(email) as email_length,
+                        ROUND(score) as rounded_score,
+                        CEIL(score) as score_ceiling
+                    FROM ?
+                `, [customers]);
+                
+                displayResult('functions-result', 'String & Math Functions Results:', formattedNames);
+                displayStatus('functions-result', '✅ Applied functions to all customer records!');
+            } catch (error) {
+                displayResult('functions-result', 'Error:', error.message, true);
+            }
+        }
+
+        function runAdvancedWhere() {
+            try {
+                const inventory = [
+                    {id: 1, name: "Apple iPhone", price: 999, stock: 50, category: "Electronics"},
+                    {id: 2, name: "Samsung Galaxy", price: 799, stock: 30, category: "Electronics"},
+                    {id: 3, name: "Apple MacBook", price: 1299, stock: 20, category: "Computers"},
+                    {id: 4, name: "Dell Laptop", price: 899, stock: 25, category: "Computers"},
+                    {id: 5, name: "Apple Watch", price: 399, stock: 100, category: "Wearables"}
+                ];
+                
+                const appleProducts = query("SELECT * FROM ? WHERE name LIKE 'Apple%'", [inventory]);
+                const midRangeProducts = query("SELECT * FROM ? WHERE price BETWEEN 500 AND 1000", [inventory]);
+                const lowStock = query("SELECT * FROM ? WHERE stock < 30 AND category = 'Electronics'", [inventory]);
+                
+                const results = {
+                    apple_products: appleProducts,
+                    mid_range_products: midRangeProducts,
+                    low_stock_electronics: lowStock
+                };
+                
+                displayResult('advanced-where-result', 'Advanced WHERE Results:', results);
+                displayStatus('advanced-where-result', '✅ Advanced filtering completed!');
+            } catch (error) {
+                displayResult('advanced-where-result', 'Error:', error.message, true);
+            }
+        }
+
+        // Advanced Examples
+        function runJoinOperations() {
+            try {
+                const users = [
+                    {id: 1, name: "Alice Johnson", email: "alice@company.com"},
+                    {id: 2, name: "Bob Smith", email: "bob@company.com"},
+                    {id: 3, name: "Carol Davis", email: "carol@company.com"}
+                ];
+                
+                const orders = [
+                    {id: 101, user_id: 1, product: "Laptop", amount: 1200, date: "2024-01-15"},
+                    {id: 102, user_id: 2, product: "Mouse", amount: 25, date: "2024-01-16"},
+                    {id: 103, user_id: 1, product: "Keyboard", amount: 75, date: "2024-01-17"},
+                    {id: 104, user_id: 3, product: "Monitor", amount: 300, date: "2024-01-18"}
+                ];
+                
+                query.saveTable("users", users);
+                query.saveTable("orders", orders);
+                
+                const userOrders = query(`
+                    SELECT u.name, u.email, o.product, o.amount, o.date
+                    FROM users u
+                    INNER JOIN orders o ON u.id = o.user_id
+                    ORDER BY o.amount DESC
+                `);
+                
+                displayResult('join-operations-result', 'JOIN Operations Results:', userOrders);
+                displayStatus('join-operations-result', `✅ Joined ${users.length} users with ${orders.length} orders!`);
+            } catch (error) {
+                displayResult('join-operations-result', 'Error:', error.message, true);
+            }
+        }
+
+        function runNamedParameters() {
+            try {
+                // First ensure we have inventory data
+                const inventory = [
+                    {id: 1, name: "Apple iPhone", price: 999, stock: 50, category: "Electronics"},
+                    {id: 2, name: "Samsung Galaxy", price: 799, stock: 30, category: "Electronics"},
+                    {id: 3, name: "Apple MacBook", price: 1299, stock: 20, category: "Computers"},
+                    {id: 4, name: "Dell Laptop", price: 899, stock: 25, category: "Computers"},
+                    {id: 5, name: "Apple Watch", price: 399, stock: 100, category: "Wearables"}
+                ];
+                
+                const searchParams = {
+                    minPrice: 500,
+                    category: "Electronics",
+                    stockThreshold: 25
+                };
+                
+                const dynamicQuery = query(`
+                    SELECT name, price, stock, 
+                           (price * stock) as inventory_value
+                    FROM ? 
+                    WHERE price >= ? 
+                      AND category = ? 
+                      AND stock > ?
+                    ORDER BY inventory_value DESC
+                `, [inventory, searchParams.minPrice, searchParams.category, searchParams.stockThreshold]);
+                
+                const results = {
+                    search_parameters: searchParams,
+                    filtered_results: dynamicQuery
+                };
+                
+                displayResult('named-parameters-result', 'Named Parameters Results:', results);
+                displayStatus('named-parameters-result', '✅ Dynamic query executed successfully!');
+            } catch (error) {
+                displayResult('named-parameters-result', 'Error:', error.message, true);
+            }
+        }
+
+        function runDateFunctions() {
+            try {
+                const transactions = [
+                    {id: 1, amount: 250, date: "2024-01-15", type: "purchase"},
+                    {id: 2, amount: 100, date: "2024-02-20", type: "refund"},
+                    {id: 3, amount: 500, date: "2024-03-10", type: "purchase"},
+                    {id: 4, amount: 75, date: "2024-01-25", type: "purchase"}
+                ];
+                
+                const dateAnalysis = query(`
+                    SELECT 
+                        date,
+                        YEAR(date) as year,
+                        MONTH(date) as month,
+                        DAY(date) as day,
+                        amount,
+                        DATEDIFF('day', date, NOW()) as days_ago
+                    FROM ?
+                    WHERE MONTH(date) = 1
+                    ORDER BY date
+                `, [transactions]);
+                
+                displayResult('date-functions-result', 'Date Functions Results:', dateAnalysis);
+                displayStatus('date-functions-result', '✅ Date analysis completed!');
+            } catch (error) {
+                displayResult('date-functions-result', 'Error:', error.message, true);
+            }
+        }
+
+        function runComplexAggregations() {
+            try {
+                const customerOrders = [
+                    {customer_id: 1, customer_name: "Alice", order_amount: 150, order_date: "2024-01-10"},
+                    {customer_id: 1, customer_name: "Alice", order_amount: 200, order_date: "2024-01-15"},
+                    {customer_id: 2, customer_name: "Bob", order_amount: 50, order_date: "2024-01-12"},
+                    {customer_id: 2, customer_name: "Bob", order_amount: 300, order_date: "2024-01-20"},
+                    {customer_id: 3, customer_name: "Carol", order_amount: 75, order_date: "2024-01-18"},
+                    {customer_id: 3, customer_name: "Carol", order_amount: 125, order_date: "2024-01-25"}
+                ];
+                
+                const vipCustomers = query(`
+                    SELECT 
+                        customer_name,
+                        COUNT(*) as order_count,
+                        SUM(order_amount) as total_spent,
+                        AVG(order_amount) as avg_order_value,
+                        MAX(order_amount) as largest_order
+                    FROM ?
+                    GROUP BY customer_id, customer_name
+                    HAVING SUM(order_amount) > 200
+                    ORDER BY total_spent DESC
+                `, [customerOrders]);
+                
+                displayResult('complex-aggregations-result', 'VIP Customer Analysis:', vipCustomers);
+                displayStatus('complex-aggregations-result', '✅ Complex aggregation with HAVING clause completed!');
+            } catch (error) {
+                displayResult('complex-aggregations-result', 'Error:', error.message, true);
+            }
+        }
+
+        // Performance Examples
+        function runIndexManagement() {
+            try {
+                const largeDataset = [];
+                for (let i = 1; i <= 1000; i++) {
+                    largeDataset.push({
+                        id: i,
+                        name: `User ${i}`,
+                        department: ['IT', 'HR', 'Sales', 'Marketing'][i % 4],
+                        salary: 30000 + (i * 100),
+                        age: 22 + (i % 40)
+                    });
+                }
+                
+                // Create indexes
+                query.createIndex(largeDataset, 'department', 'hash');
+                query.createIndex(largeDataset, 'salary', 'sorted');
+                
+                const indexInfo = query.getIndexInfo(largeDataset);
+                const itEmployees = query("SELECT * FROM ? WHERE department = ?", [largeDataset, "IT"]);
+                
+                const results = {
+                    dataset_size: largeDataset.length,
+                    index_information: indexInfo,
+                    it_employees_count: itEmployees.length,
+                    sample_it_employees: itEmployees.slice(0, 5)
+                };
+                
+                displayResult('index-management-result', 'Index Management Results:', results);
+                displayStatus('index-management-result', `✅ Created indexes for ${largeDataset.length} records!`);
+            } catch (error) {
+                displayResult('index-management-result', 'Error:', error.message, true);
+            }
+        }
+
+        function runPagination() {
+            try {
+                const largeDataset = [];
+                for (let i = 1; i <= 100; i++) {
+                    largeDataset.push({
+                        id: i,
+                        name: `User ${i}`,
+                        department: ['IT', 'HR', 'Sales', 'Marketing'][i % 4],
+                        salary: 30000 + (i * 100)
+                    });
+                }
+                
+                const pageSize = 5;
+                const pageNumber = 2;
+                const offset = (pageNumber - 1) * pageSize;
+                
+                const paginatedResults = query(`
+                    SELECT id, name, department, salary
+                    FROM ?
+                    ORDER BY salary DESC
+                    LIMIT ${pageSize} OFFSET ${offset}
+                `, [largeDataset]);
+                
+                const totalCount = query("SELECT COUNT(*) as total FROM ?", [largeDataset]);
+                
+                const results = {
+                    page_number: pageNumber,
+                    page_size: pageSize,
+                    total_records: totalCount[0].total,
+                    paginated_results: paginatedResults
+                };
+                
+                displayResult('pagination-result', 'Pagination Results:', results);
+                displayStatus('pagination-result', `✅ Retrieved page ${pageNumber} of ${Math.ceil(totalCount[0].total / pageSize)}!`);
+            } catch (error) {
+                displayResult('pagination-result', 'Error:', error.message, true);
+            }
+        }
+
+        // Real-World Examples
+        function runEcommerceDashboard() {
+            try {
+                const ecommerceOrders = [
+                    {id: 1, customer_id: 1, product: "Laptop", category: "Electronics", amount: 1200, date: "2024-01-15", status: "completed"},
+                    {id: 2, customer_id: 2, product: "Book", category: "Education", amount: 25, date: "2024-01-16", status: "completed"},
+                    {id: 3, customer_id: 1, product: "Mouse", category: "Electronics", amount: 50, date: "2024-01-17", status: "pending"},
+                    {id: 4, customer_id: 3, product: "Notebook", category: "Office", amount: 15, date: "2024-01-18", status: "completed"},
+                    {id: 5, customer_id: 2, product: "Keyboard", category: "Electronics", amount: 75, date: "2024-01-19", status: "cancelled"}
+                ];
+                
+                const salesByCategory = query(`
+                    SELECT 
+                        category,
+                        COUNT(*) as order_count,
+                        SUM(amount) as total_revenue,
+                        AVG(amount) as avg_order_value
+                    FROM ?
+                    WHERE status = 'completed'
+                    GROUP BY category
+                    ORDER BY total_revenue DESC
+                `, [ecommerceOrders]);
+                
+                const topCustomers = query(`
+                    SELECT 
+                        customer_id,
+                        COUNT(*) as order_count,
+                        SUM(amount) as total_spent
+                    FROM ?
+                    WHERE status = 'completed'
+                    GROUP BY customer_id
+                    HAVING COUNT(*) > 1
+                    ORDER BY total_spent DESC
+                `, [ecommerceOrders]);
+                
+                const results = {
+                    sales_by_category: salesByCategory,
+                    top_customers: topCustomers
+                };
+                
+                displayResult('ecommerce-dashboard-result', 'E-commerce Dashboard:', results);
+                displayStatus('ecommerce-dashboard-result', '✅ E-commerce analytics completed!');
+            } catch (error) {
+                displayResult('ecommerce-dashboard-result', 'Error:', error.message, true);
+            }
+        }
+
+        function runUserAnalytics() {
+            try {
+                const userSessions = [
+                    {user_id: 1, session_date: "2024-01-15", page_views: 15, duration: 1200, device: "desktop"},
+                    {user_id: 2, session_date: "2024-01-15", page_views: 8, duration: 600, device: "mobile"},
+                    {user_id: 1, session_date: "2024-01-16", page_views: 22, duration: 1800, device: "desktop"},
+                    {user_id: 3, session_date: "2024-01-16", page_views: 5, duration: 300, device: "mobile"},
+                    {user_id: 2, session_date: "2024-01-17", page_views: 12, duration: 900, device: "tablet"}
+                ];
+                
+                const dailyMetrics = query(`
+                    SELECT 
+                        session_date,
+                        COUNT(DISTINCT user_id) as unique_users,
+                        SUM(page_views) as total_page_views,
+                        AVG(page_views) as avg_page_views,
+                        SUM(duration) as total_duration,
+                        AVG(duration) as avg_session_duration
+                    FROM ?
+                    GROUP BY session_date
+                    ORDER BY session_date
+                `, [userSessions]);
+                
+                const deviceStats = query(`
+                    SELECT 
+                        device,
+                        COUNT(*) as session_count,
+                        AVG(page_views) as avg_page_views,
+                        AVG(duration) as avg_duration
+                    FROM ?
+                    GROUP BY device
+                    ORDER BY session_count DESC
+                `, [userSessions]);
+                
+                const results = {
+                    daily_metrics: dailyMetrics,
+                    device_statistics: deviceStats
+                };
+                
+                displayResult('user-analytics-result', 'User Analytics Dashboard:', results);
+                displayStatus('user-analytics-result', '✅ User analytics completed!');
+            } catch (error) {
+                displayResult('user-analytics-result', 'Error:', error.message, true);
+            }
+        }
+
+        function runInventoryManagement() {
+            try {
+                const inventoryData = [
+                    {id: 1, product: "Laptop Pro", category: "Electronics", stock: 15, price: 1299, cost: 800, supplier: "TechCorp"},
+                    {id: 2, product: "Office Chair", category: "Furniture", stock: 45, price: 199, cost: 120, supplier: "FurniMax"},
+                    {id: 3, product: "Smartphone", category: "Electronics", stock: 8, price: 699, cost: 400, supplier: "TechCorp"},
+                    {id: 4, product: "Desk Lamp", category: "Furniture", stock: 60, price: 49, cost: 25, supplier: "LightCo"},
+                    {id: 5, product: "Tablet", category: "Electronics", stock: 25, price: 399, cost: 250, supplier: "TechCorp"}
+                ];
+                
+                const lowStockAlert = query(`
+                    SELECT 
+                        product,
+                        category,
+                        stock,
+                        price,
+                        (stock * price) as stock_value
+                    FROM ?
+                    WHERE stock < 20
+                    ORDER BY stock ASC
+                `, [inventoryData]);
+                
+                const profitByCategory = query(`
+                    SELECT 
+                        category,
+                        COUNT(*) as product_count,
+                        SUM(stock * (price - cost)) as total_profit,
+                        AVG(price - cost) as avg_profit_per_unit,
+                        SUM(stock * cost) as total_inventory_cost
+                    FROM ?
+                    GROUP BY category
+                    ORDER BY total_profit DESC
+                `, [inventoryData]);
+                
+                const supplierAnalysis = query(`
+                    SELECT 
+                        supplier,
+                        COUNT(*) as product_count,
+                        AVG(price) as avg_price,
+                        SUM(stock) as total_stock
+                    FROM ?
+                    GROUP BY supplier
+                    ORDER BY product_count DESC
+                `, [inventoryData]);
+                
+                const results = {
+                    low_stock_alerts: lowStockAlert,
+                    profit_by_category: profitByCategory,
+                    supplier_analysis: supplierAnalysis
+                };
+                
+                displayResult('inventory-management-result', 'Inventory Management System:', results);
+                displayStatus('inventory-management-result', '✅ Inventory analysis completed!');
+            } catch (error) {
+                displayResult('inventory-management-result', 'Error:', error.message, true);
+            }
+        }
+
+        // Utility Functions
+        function showStorageInfo() {
+            try {
+                const tables = query.listTables();
+                const storageInfo = {
+                    total_tables: tables.length,
+                    tables: tables,
+                    total_storage_used: tables.reduce((sum, table) => sum + table.size, 0)
+                };
+                
+                displayResult('storage-info-result', 'Current Storage Information:', storageInfo);
+                displayStatus('storage-info-result', `📊 Found ${tables.length} tables in storage!`);
+            } catch (error) {
+                displayResult('storage-info-result', 'Error:', error.message, true);
+            }
+        }
+
+        function clearAllData() {
+            try {
+                const clearedCount = query.clearAllTables();
+                localStorage.clear(); // Also clear any non-table data
+                
+                displayResult('storage-info-result', 'Storage Cleared:', {
+                    tables_cleared: clearedCount,
+                    status: "All data cleared successfully"
+                });
+                displayStatus('storage-info-result', '🗑️ All storage cleared!');
+            } catch (error) {
+                displayResult('storage-info-result', 'Error:', error.message, true);
+            }
+        }
+
+        function runAllExamples() {
+            console.log("🚀 Running all Query.js examples...");
+            
+            // Clear previous results
+            document.querySelectorAll('[id$="-result"]').forEach(el => el.innerHTML = '');
+            
+            // Run all examples with delays to prevent overwhelming the browser
+            const examples = [
+                runBasicStorage,
+                runBasicDeletion, 
+                runBasicArrays,
+                runTableManagement,
+                runCRUDOperations,
+                runAggregations,
+                runFunctions,
+                runAdvancedWhere,
+                runJoinOperations,
+                runNamedParameters,
+                runDateFunctions,
+                runComplexAggregations,
+                runIndexManagement,
+                runPagination,
+                runEcommerceDashboard,
+                runUserAnalytics,
+                runInventoryManagement
+            ];
+            
+            examples.forEach((example, index) => {
+                setTimeout(() => {
+                    try {
+                        example();
+                        console.log(`✅ Completed example ${index + 1}/${examples.length}`);
+                    } catch (error) {
+                        console.error(`❌ Error in example ${index + 1}:`, error);
+                    }
+                }, index * 100); // 100ms delay between each example
+            });
+            
+            // Show final storage info
+            setTimeout(() => {
+                showStorageInfo();
+                console.log("🎉 All examples completed!");
+            }, (examples.length + 1) * 100);
+        }
+
+        // Initialize the demo
         document.addEventListener('DOMContentLoaded', function() {
-            const resetBtn = document.createElement('button');
-            resetBtn.textContent = '🔄 Reset Sample Data';
-            resetBtn.className = 'run-btn';
-            resetBtn.style.position = 'fixed';
-            resetBtn.style.top = '20px';
-            resetBtn.style.right = '20px';
-            resetBtn.style.zIndex = '1000';
-            resetBtn.onclick = function() {
-                resetData();
-                alert('Sample data has been reset!');
-            };
-            document.body.appendChild(resetBtn);
+            console.log("🎯 Query.js Demo loaded successfully!");
+            console.log("💡 Click 'Run All Examples' to see everything in action!");
         });
     </script>
 </body>
