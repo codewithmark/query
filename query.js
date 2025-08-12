@@ -1,3 +1,8 @@
+/*!
+* Query v1.0.0
+* URL: https://github.com/codewithmark/query
+* Released under the MIT License.
+*/
 const indexes = new Map(); // Map of dataArray -> Map of column -> index
 
 function createIndex(dataArray, column, type = 'hash') {
@@ -31,7 +36,7 @@ function createIndex(dataArray, column, type = 'hash') {
     arrayIndexes.set(`${column}_sorted`, sortedIndex);
   }
 }
-console.clear();
+
 
 function getIndex(dataArray, column, type = 'hash') {
   const arrayKey = dataArray;
@@ -885,27 +890,46 @@ function query(sql, params = []) {
         throw new Error('First parameter must be an array.');
       }
     }
-    
-    const setPart = updateMatch[2];
-    const whereClause = updateMatch[4];
-    const updates = Object.fromEntries(
-      setPart.split(',').map(pair => {
-        const [key, val] = pair.split('=').map(s => s.trim());
-        // Handle functions in UPDATE SET clauses
-        return [key, /\w+\s*\(/.test(val) ? val : parseValue(val)];
-      })
-    );
-    
+
+    let updates = {};
+    let whereClause = updateMatch ? updateMatch[4] : undefined;
+
+    // Support SET ? syntax: if params[0] is an object or array of objects, use it/them as updates
+    let updateObjects = [];
+    if (params.length && typeof params[0] === 'object') {
+      if (Array.isArray(params[0])) {
+        updateObjects = params[0].filter(obj => typeof obj === 'object' && !Array.isArray(obj));
+      } else {
+        updateObjects = [params[0]];
+      }
+    }
+    else if (updateMatch && updateMatch[2] !== '?') {
+      // Fallback to parsing SET clause as before
+      const setPart = updateMatch[2];
+      const parsedUpdates = Object.fromEntries(
+        setPart.split(',').map(pair => {
+          const [key, val] = pair.split('=').map(s => s.trim());
+          // Handle functions in UPDATE SET clauses
+          return [key, /\w+\s*\(/.test(val) ? val : parseValue(val)];
+        })
+      );
+      updateObjects = [parsedUpdates];
+    }
+
     let updatedCount = 0;
-    for (const item of data) {
-      if (matchConditions(item, whereClause)) {
-        for (const [key, val] of Object.entries(updates)) {
-          // Evaluate functions in UPDATE SET values
-          item[key] = typeof val === 'string' && /\w+\s*\(/.test(val) 
-            ? evaluateField(val, item) 
-            : val;
+    if (updateObjects.length > 0) {
+      for (const updates of updateObjects) {
+        for (const item of data) {
+          if (matchConditions(item, whereClause)) {
+            for (const [key, val] of Object.entries(updates)) {
+              // Evaluate functions in UPDATE SET values
+              item[key] = typeof val === 'string' && /\w+\s*\(/.test(val)
+                ? evaluateField(val, item)
+                : val;
+            }
+            updatedCount++;
+          }
         }
-        updatedCount++;
       }
     }
 
@@ -913,7 +937,7 @@ function query(sql, params = []) {
     if (useLocalStorage && tableName) {
       saveTableToLocalStorage(tableName, data);
     }
-    
+
     return { updatedCount, data };
   }
 
