@@ -745,6 +745,12 @@ query("UPDATE users SET department = 'Engineering', salary = 75000 WHERE id = 1"
 
 // Update multiple fields
 query("UPDATE users SET active = true, last_login = '2024-01-01' WHERE department = 'Sales'");
+
+// update via object syntax
+//query("UPDATE users SET ? WHERE id = 1", [{key1:value,key2:value, }, where_equals_value]);
+query("UPDATE users SET ? WHERE age = ?", [{ name: "Updated", age: 26 }, 25]);
+
+
 ```
 
 #### DELETE Operations
